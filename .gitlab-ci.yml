@@ -1,0 +1,23 @@
+image: haskell:latest
+
+variables:
+  STACK_ROOT: "${HOME}/.stack"
+
+cache:
+  paths:
+    - .stack
+    - .stack-work
+
+stages:
+  - build
+  - test
+
+build:
+  stage: build
+  script:
+    - stack build
+
+test:
+  stage: test
+  script:
+    - stack test
