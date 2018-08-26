@@ -1,7 +1,7 @@
 image: haskell:latest
 
 variables:
-  STACK_ROOT: "${HOME}/.stack"
+  STACK_ROOT: "${CI_PROJECT_DIR}/.stack"
 
 cache:
   paths:
