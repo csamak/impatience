@@ -44,6 +44,8 @@ image_build:
     - docker push "$CI_REGISTRY_IMAGE:latest"
   dependencies:
     - build
+  only:
+    - master
 
 deploy_image:
   stage: deploy
@@ -61,3 +63,6 @@ deploy_image:
     - kubectl apply -f dev.yml
     - kubectl apply -f service.yml
     - kubectl rollout status -f dev.yml
+    - kubectl rollout status -f service.yml
+  only:
+    - master
