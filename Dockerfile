@@ -1,11 +1,4 @@
-FROM haskell:latest
+FROM fpco/haskell-scratch:integer-gmp
 
-RUN mkdir -p /app/user
-WORKDIR /app/user
-COPY stack.yaml *.cabal ./
-
-RUN export PATH=$(stack path --local-bin):$PATH
-RUN stack build --dependencies-only
-
-COPY . /app/user
-RUN stack install
+WORKDIR /app
+COPY ./bin/impatience /app
