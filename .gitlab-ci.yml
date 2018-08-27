@@ -61,4 +61,3 @@ deploy_image:
     - kubectl apply -f dev.yml
     - kubectl apply -f service.yml
     - kubectl rollout status -f dev.yml
-    - kubectl rollout status -f service.yml
