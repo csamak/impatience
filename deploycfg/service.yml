@@ -10,6 +10,6 @@ spec:
     - name: "http"
       port: 80
       protocol: TCP
-      targetPort: 1234
+      targetPort: external
   selector:
     app: __CI_ENVIRONMENT_SLUG__
