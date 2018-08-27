@@ -48,13 +48,17 @@ image_build:
 deploy_image:
   stage: deploy
   image: alpine
-  environment: staging
+  environment: dev
   cache: {}
   script:
     - apk add --no-cache curl
     - curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
     - chmod +x ./kubectl
     - mv ./kubectl /usr/local/bin/kubectl
-    - kubectl config set-context $(kubectl config current-context) --namespace=default
-    - kubectl set image deployment/impatience impatience="$CI_REGISTRY_IMAGE:latest"
-    - kubectl rollout status deployment/impatience
+    - cd deploycfg
+    - sed -i "s/__CI_ENVIRONMENT_SLUG__/${CI_ENVIRONMENT_SLUG}/" dev.yml
+    - sed -i "s/__IMAGE__/${CI_REGISTRY_IMAGE}:latest/" dev.yml
+    - kubectl apply -f dev.yml
+    - kubectl apply -f service.yml
+    - kubectl rollout status -f dev.yml
+    - kubectl rollout status -f service.yml
