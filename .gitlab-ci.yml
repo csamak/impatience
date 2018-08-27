@@ -19,6 +19,13 @@ build:
   stage: build
   script:
     - stack build
+    - mkdir bin
+    # there is probably a way to get the artifacts from build directly
+    - stack install --local-bin-path ./bin
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - bin/
 
 test:
   stage: test
@@ -30,10 +37,13 @@ image_build:
   image: docker:latest
   services:
     - docker:dind
+  cache: {}
   script:
     - docker login -u gitlab-ci-token -p "$CI_BUILD_TOKEN" "$CI_REGISTRY"
     - docker build -t "$CI_REGISTRY_IMAGE:latest" .
     - docker push "$CI_REGISTRY_IMAGE:latest"
+  dependencies:
+    - build
   only:
     - master
 
