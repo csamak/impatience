@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: impatience
+  labels:
+    app: __CI_ENVIRONMENT_SLUG__
+spec:
+  type: ClusterIP
+  ports:
+    - name: "http"
+      port: 80
+      protocol: TCP
+      targetPort: 1234
+  selector:
+    app: __CI_ENVIRONMENT_SLUG__
