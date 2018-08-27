@@ -12,7 +12,6 @@ spec:
   selector:
     matchLabels:
       app: __CI_ENVIRONMENT_SLUG__
-      name: "impatience"
   template:
     metadata:
       labels:
