@@ -57,7 +57,7 @@ deploy_image:
     - mv ./kubectl /usr/local/bin/kubectl
     - cd deploycfg
     - sed -i "s/__CI_ENVIRONMENT_SLUG__/${CI_ENVIRONMENT_SLUG}/" dev.yml
-    - sed -i "s/__IMAGE__/${CI_REGISTRY_IMAGE}:latest/" dev.yml
+    - sed -i "s/__IMAGE__/$(echo ${CI_REGISTRY_IMAGE}:latest | sed -e 's/\//\\\//g')/" dev.yml
     - kubectl apply -f dev.yml
     - kubectl apply -f service.yml
     - kubectl rollout status -f dev.yml
