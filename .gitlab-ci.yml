@@ -44,8 +44,6 @@ image_build:
     - docker push "$CI_REGISTRY_IMAGE:latest"
   dependencies:
     - build
-  only:
-    - master
 
 deploy_image:
   stage: deploy
@@ -56,10 +54,6 @@ deploy_image:
     - curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
     - chmod +x ./kubectl
     - mv ./kubectl /usr/local/bin/kubectl
-    - kubectl config set-cluster nosebit --server="$KUBE_URL" --insecure-skip-tls-verify=true
-    - kubectl config set-credentials admin --username="$KUBE_USER" --password="$KUBE_PASSWORD"
-    - kubectl config set-context default --cluster=nosebit --user=admin
-    - kubectl config use-context default
+    - echo "$KUBECONFIG"
+    - kubectl config view
     - kubectl set image deployment/impatience impatience="$CI_REGISTRY_IMAGE:latest"
-  only:
-    - master
