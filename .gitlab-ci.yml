@@ -57,3 +57,4 @@ deploy_image:
     - echo "$KUBECONFIG"
     - kubectl config view
     - kubectl set image deployment/impatience impatience="$CI_REGISTRY_IMAGE:latest"
+    - kubectl rollout status deployment/impatience
