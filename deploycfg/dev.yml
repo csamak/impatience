@@ -23,5 +23,9 @@ spec:
         - name: impatience
           image: __IMAGE__
           imagePullPolicy: Always
+          ports:
+            - containerPort: 1234
+              name: "external"
+              protocol: "TCP"
           args:
           - impatience
