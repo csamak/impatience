@@ -21,7 +21,7 @@ data User = User
 
 $(deriveJSON defaultOptions ''User)
 
-type API = "annieareyouok" :> Get '[JSON] String
+type API = "annieareyouok" :> Get '[PlainText] String
     :<|> "users" :> Get '[JSON] [User]
 
 startApp :: IO ()

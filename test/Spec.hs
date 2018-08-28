@@ -23,4 +23,4 @@ spec = with (return app) $ do
         it "confirms that she is indeed ok" $ do
             get "/annieareyouok" `shouldRespondWith` 200
         it "reminds us that others care about annie too" $ do
-            get "/annieareyouok" `shouldRespondWith` "\"https://youtu.be/h_D3VFfhvs4\""
+            get "/annieareyouok" `shouldRespondWith` "https://youtu.be/h_D3VFfhvs4"
