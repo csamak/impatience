@@ -21,7 +21,8 @@ data User = User
 
 $(deriveJSON defaultOptions ''User)
 
-type API = "users" :> Get '[JSON] [User]
+type API = "annieareyouok" :> Get '[JSON] String
+    :<|> "users" :> Get '[JSON] [User]
 
 startApp :: IO ()
 startApp = do
@@ -36,7 +37,9 @@ api :: Proxy API
 api = Proxy
 
 server :: Server API
-server = return users
+server = return annie :<|> return users
+
+annie = "https://youtu.be/h_D3VFfhvs4"
 
 users :: [User]
 users = [ User 1 "Isaac" "Newton"
