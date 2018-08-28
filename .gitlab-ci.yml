@@ -2,6 +2,7 @@ image: haskell:latest
 
 variables:
   STACK_ROOT: "${CI_PROJECT_DIR}/.stack"
+  IMAGE_NAME: ${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_SLUG}_${CI_COMMIT_SHA}
 
 cache:
   key: primary
@@ -38,8 +39,8 @@ image_build:
   cache: {}
   script:
     - docker login -u gitlab-ci-token -p "$CI_BUILD_TOKEN" "$CI_REGISTRY"
-    - docker build -t "$CI_REGISTRY_IMAGE:latest" .
-    - docker push "$CI_REGISTRY_IMAGE:latest"
+    - docker build -t "$IMAGE_NAME" .
+    - docker push "$IMAGE_NAME"
   dependencies:
     - build
   only:
@@ -58,7 +59,7 @@ deploy_image:
     - mv ./kubectl /usr/local/bin/kubectl
     - cd deploycfg
     - sed -i "s/__CI_ENVIRONMENT_SLUG__/${CI_ENVIRONMENT_SLUG}/" dev.yml service.yml
-    - sed -i "s/__IMAGE__/$(echo ${CI_REGISTRY_IMAGE}:latest | sed -e 's/\//\\\//g')/" dev.yml
+    - sed -i "s/__IMAGE__/$(echo ${IMAGE_NAME} | sed -e 's/\//\\\//g')/" dev.yml
     - kubectl apply -f dev.yml
     - kubectl apply -f service.yml
     - kubectl rollout status -f dev.yml
