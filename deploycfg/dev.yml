@@ -23,6 +23,18 @@ spec:
         - name: impatience
           image: __IMAGE__
           imagePullPolicy: Always
+          livenessProbe:
+            httpGet:
+              path: /annieareyouok
+              port: external
+            initialDelaySeconds: 5
+            timeoutSeconds: 1
+          readinessProbe:
+            httpGet:
+              path: /annieareyouok
+              port: external
+            initialDelaySeconds: 5
+            timeoutSeconds: 1
           ports:
             - containerPort: 1234
               name: "external"

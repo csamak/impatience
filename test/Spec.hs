@@ -18,3 +18,9 @@ spec = with (return app) $ do
         it "responds with [User]" $ do
             let users = "[{\"userId\":1,\"userFirstName\":\"Isaac\",\"userLastName\":\"Newton\"},{\"userId\":2,\"userFirstName\":\"Albert\",\"userLastName\":\"Einstein\"}]"
             get "/users" `shouldRespondWith` users
+
+    describe "the route for checking if annie's state is passable" $ do
+        it "confirms that she is indeed ok" $ do
+            get "/annieareyouok" `shouldRespondWith` 200
+        it "reminds us that others care about annie too" $ do
+            get "/annieareyouok" `shouldRespondWith` "\"https://youtu.be/h_D3VFfhvs4\""
