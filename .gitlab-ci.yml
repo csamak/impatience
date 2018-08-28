@@ -18,9 +18,7 @@ stages:
 build:
   stage: build
   script:
-    - stack build
     - mkdir bin
-    # there is probably a way to get the artifacts from build directly
     - stack install --local-bin-path ./bin
   artifacts:
     expire_in: 1 week
@@ -50,7 +48,8 @@ image_build:
 deploy_image:
   stage: deploy
   image: alpine
-  environment: dev
+  environment:
+    name: dev
   cache: {}
   script:
     - apk add --no-cache curl
