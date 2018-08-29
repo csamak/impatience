@@ -27,7 +27,6 @@ build:
       - .stack-work
   script:
     - mkdir bin
-    - stack upgrade
     - stack install --local-bin-path ./bin
   artifacts:
     expire_in: 1 week
@@ -39,7 +38,9 @@ test:
   image: haskell
   dependencies: []
   script:
-    - stack upgrade
+    - stack build hlint weeder
+    - stack exec hlint -- .
+    - stack exec weeder -- . --build
     - stack test --coverage
     - mkdir coverage
     - cp -a $(stack path --local-hpc-root)/. ./coverage/
