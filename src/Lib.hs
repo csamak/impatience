@@ -48,4 +48,4 @@ server = return annie :<|> progress
 annie = "https://youtu.be/h_D3VFfhvs4"
 
 progress :: Integer -> Handler Progress
-progress id = maybe (throwError err404) return $ find (\p -> jobId p == id) defaultProgressEntries
+progress jobId = maybe (throwError err404) return $ M.lookup jobId defaultProgressEntries
