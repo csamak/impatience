@@ -90,7 +90,7 @@ deploy_coverage:
     - test
   script:
     - mkdir public/coverage
-    - mv coverage/ public/coverage/
+    - mv coverage/ public/
   artifacts:
     paths:
     - public
