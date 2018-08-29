@@ -13,7 +13,6 @@ cache:
 stages:
   - build
   - test
-  - release
   - deploy
 
 build:
@@ -50,7 +49,7 @@ test:
       - coverage/
 
 image_build:
-  stage: release
+  stage: test # if on master, run alongside tests
   image: docker:latest
   services:
     - docker:dind
