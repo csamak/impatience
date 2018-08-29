@@ -83,7 +83,7 @@ deploy_image:
   only:
     - master
 
-deploy_coverage:
+pages:
   stage: deploy
   cache: {}
   dependencies:
