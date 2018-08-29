@@ -27,7 +27,7 @@ library
 executable impatience-exe
   hs-source-dirs:      app
   main-is:             Main.hs
-  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N -Werror
   build-depends:       base
                      , impatience
   default-language:    Haskell2010
@@ -42,7 +42,9 @@ test-suite impatience-test
                      , hspec-wai
                      , hspec-wai-json
                      , aeson
-  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N -Werror
+  other-modules:
+    LibSpec
   default-language:    Haskell2010
 
 source-repository head
