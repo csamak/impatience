@@ -1,4 +1,4 @@
-image: haskell:latest
+image: alpine
 
 variables:
   STACK_ROOT: "${CI_PROJECT_DIR}/.stack"
@@ -18,8 +18,17 @@ stages:
 
 build:
   stage: build
+  image: haskell
+  # See https://gitlab.com/gitlab-org/gitlab-runner/issues/2838
+  cache:
+    key: primary
+    policy: pull # Only push from test (even though it runs later)
+    paths:
+      - .stack
+      - .stack-work
   script:
     - mkdir bin
+    - stack upgrade
     - stack install --local-bin-path ./bin
   artifacts:
     expire_in: 1 week
@@ -28,9 +37,17 @@ build:
 
 test:
   stage: test
+  image: haskell
   dependencies: []
   script:
-    - stack test
+    - stack upgrade
+    - stack test --coverage
+    - mkdir coverage
+    - cp -a $(stack path --local-hpc-root)/. ./coverage/
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - coverage/
 
 image_build:
   stage: release
@@ -49,7 +66,6 @@ image_build:
 
 deploy_image:
   stage: deploy
-  image: alpine
   environment:
     name: dev
   cache: {}
@@ -65,5 +81,20 @@ deploy_image:
     - kubectl apply -f dev.yml
     - kubectl apply -f service.yml
     - kubectl rollout status -f dev.yml
+  only:
+    - master
+
+deploy_coverage:
+  stage: deploy
+  cache: {}
+  dependencies:
+    - test
+  script:
+    - mkdir public/coverage
+    - mv coverage/ public/coverage/
+  artifacts:
+    paths:
+    - public
+    expire_in: 30 days
   only:
     - master
