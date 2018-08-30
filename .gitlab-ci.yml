@@ -27,6 +27,8 @@ build:
       - .stack-work
   script:
     - mkdir bin
+    - apt-get update
+    - apt-get install -y liblzma-dev
     - stack install --local-bin-path ./bin
   artifacts:
     expire_in: 1 week
@@ -38,6 +40,8 @@ test:
   image: haskell
   dependencies: []
   script:
+    - apt-get update
+    - apt-get install -y liblzma-dev
     - stack build hlint weeder
     - stack exec hlint -- .
     - stack exec weeder -- . --build
