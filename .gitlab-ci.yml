@@ -4,12 +4,6 @@ variables:
   STACK_ROOT: "${CI_PROJECT_DIR}/.stack"
   IMAGE_NAME: ${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_SLUG}_${CI_COMMIT_SHA}
 
-cache:
-  key: primary
-  paths:
-    - .stack
-    - .stack-work
-
 stages:
   - build
   - test
@@ -18,10 +12,8 @@ stages:
 build:
   stage: build
   image: haskell
-  # See https://gitlab.com/gitlab-org/gitlab-runner/issues/2838
   cache:
     key: primary
-    policy: pull # Only push from test (even though it runs later)
     paths:
       - .stack
       - .stack-work
@@ -42,6 +34,12 @@ build:
 test:
   stage: test
   image: haskell
+  cache:
+    key: primary
+    policy: pull
+    paths:
+      - .stack
+      - .stack-work
   dependencies: []
   script:
     - apt-get update
@@ -63,7 +61,6 @@ image_test:
   image: docker:latest
   services:
     - docker:dind
-  cache: {}
   dependencies:
     - build
   script:
@@ -78,7 +75,6 @@ image_build:
   image: docker:latest
   services:
     - docker:dind
-  cache: {}
   dependencies:
     - build
   script:
@@ -92,7 +88,6 @@ deploy_image:
   stage: deploy
   environment:
     name: dev
-  cache: {}
   dependencies: []
   script:
     - apk add --no-cache curl
@@ -110,7 +105,6 @@ deploy_image:
 
 pages:
   stage: deploy
-  cache: {}
   dependencies:
     - test
   script:
