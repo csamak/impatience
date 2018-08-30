@@ -68,7 +68,7 @@ image_test:
   script:
     - docker login -u gitlab-ci-token -p "$CI_BUILD_TOKEN" "$CI_REGISTRY"
     - cp Dockerfile Dockerfile.test
-    - echo "COPY ./bin/impatience-exe /app/impatience-exe" >> Dockerfile.test
+    - echo "COPY ./bin/impatience-test /app/impatience-test" >> Dockerfile.test
     - docker build -t "test-image" -f Dockerfile.test .
     - docker run test-image impatience-test
 
