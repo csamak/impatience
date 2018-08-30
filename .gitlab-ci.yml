@@ -29,7 +29,7 @@ build:
     - mkdir -p bin/lib
     - apt-get update
     - apt-get install -y liblzma-dev
-    - cp /usr/lib/x86_64-linux-gnu/liblzma.so.5 bin/lib/
+    - cp /lib/x86_64-linux-gnu/liblzma.so.5 bin/lib/
     - stack install --local-bin-path ./bin
     - ldd ./bin/impatience-exe
   artifacts:
