@@ -19,7 +19,11 @@ library
   build-depends:       base >= 4.7 && < 5
                      , aeson
                      , containers
+                     , lens
                      , servant-server
+                     , servant-swagger
+                     , servant-swagger-ui
+                     , swagger2
                      , wai
                      , wai-logger
                      , warp
