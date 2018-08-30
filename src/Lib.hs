@@ -1,4 +1,6 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeOperators #-}
 
@@ -14,22 +16,30 @@ import           Network.Wai
 import           Network.Wai.Handler.Warp
 import           Network.Wai.Logger             ( withStdoutLogger )
 import           Servant
+import           Servant.Swagger
+import           Servant.Swagger.UI
+import           Control.Lens
 import           Data.List
-import qualified Data.Map                      as M
+import           Data.Map                       ( fromList
+                                                , (!?)
+                                                )
+import           Data.Swagger
+import           GHC.Generics                   ( Generic )
 
 data Progress = Progress
   { jobId :: Integer
   , completed :: Int
   , total :: Int
-  }
+  } deriving Generic
 
+instance ToSchema Progress
 $(deriveJSON defaultOptions ''Progress)
 
-defaultProgressEntries = M.fromList $ map (\p -> (jobId p, p)) [Progress 1 5 50, Progress 2 3 10]
+defaultProgressEntries = fromList $ map (\p -> (jobId p, p)) [Progress 1 5 50, Progress 2 3 10]
 
-type API
-   = "annieareyouok" :> Get '[ PlainText] String
-    :<|> "progress" :> Capture "jobid" Integer :> Get '[ JSON] Progress
+type API = "annieareyouok" :> Get '[ PlainText] String :<|> "progress" :> Capture "jobid" Integer :> Get '[ JSON] Progress
+
+type APIWithSwagger = SwaggerSchemaUI "docs" "swagger.json" :<|> API
 
 startApp :: IO ()
 startApp = withStdoutLogger $ \logger -> do
@@ -39,13 +49,19 @@ startApp = withStdoutLogger $ \logger -> do
 app :: Application
 app = serve api server
 
-api :: Proxy API
+api :: Proxy APIWithSwagger
 api = Proxy
 
-server :: Server API
-server = return annie :<|> progress
+server :: Server APIWithSwagger
+server = swaggerSchemaUIServer swaggerDoc :<|> return annie :<|> progress
 
 annie = "https://youtu.be/h_D3VFfhvs4"
 
 progress :: Integer -> Handler Progress
-progress jobId = maybe (throwError err404) return $ M.lookup jobId defaultProgressEntries
+progress p = maybe (throwError err404) return $ defaultProgressEntries !? p
+
+swaggerDoc =
+  toSwagger (Proxy :: Proxy API)
+    &  info
+    .  license
+    ?~ ("Apache" & url ?~ URL "https://www.apache.org/licenses/LICENSE-2.0")
