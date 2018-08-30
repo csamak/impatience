@@ -66,6 +66,7 @@ image_build:
     - cp /usr/lib/liblzma.so.5 .
     - cp /usr/lib/liblzma.so.5.2.4 .
     - cp /lib/libc.musl-x86_64.so.1 .
+    - cp /lib/ld-musl-x86_64.so.1	.
     - docker login -u gitlab-ci-token -p "$CI_BUILD_TOKEN" "$CI_REGISTRY"
     - docker build -t "$IMAGE_NAME" .
     - docker push "$IMAGE_NAME"
