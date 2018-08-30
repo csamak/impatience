@@ -7,6 +7,8 @@
 module Lib
   ( startApp
   , app
+  , API
+  , Progress
   )
 where
 
@@ -26,11 +28,7 @@ import           Data.Map                       ( fromList
 import           Data.Swagger
 import           GHC.Generics                   ( Generic )
 
-data Progress = Progress
-  { jobId :: Integer
-  , completed :: Int
-  , total :: Int
-  } deriving Generic
+data Progress = Progress { jobId, completed, total :: Integer } deriving (Show, Generic)
 
 instance ToSchema Progress
 $(deriveJSON defaultOptions ''Progress)
