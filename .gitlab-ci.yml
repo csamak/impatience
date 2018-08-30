@@ -71,8 +71,6 @@ image_test:
     - echo "COPY ./bin/impatience-exe /app/impatience-exe" >> Dockerfile.test
     - docker build -t "test-image" -f Dockerfile.test .
     - docker run test-image impatience-test
-  only:
-    - master
 
 image_build:
   stage: test # if on master, run alongside tests
