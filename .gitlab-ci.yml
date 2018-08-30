@@ -30,7 +30,8 @@ build:
     - apt-get update
     - apt-get install -y liblzma-dev
     - cp /lib/x86_64-linux-gnu/liblzma.so.5 bin/lib/
-    - stack install --local-bin-path ./bin
+    - stack build --test --no-run-tests --copy-bins --local-bin-path ./bin
+    - cp $(stack path --dist-dir)/build/impatience-test/impatience-test ./bin/impatience-test
     - ldd ./bin/impatience-exe
   artifacts:
     expire_in: 1 week
@@ -54,6 +55,22 @@ test:
     expire_in: 1 week
     paths:
       - coverage/
+
+# This re-runs the tests in an image that better reflects the deployed image
+image_test:
+  stage: test # if on master, run alongside tests
+  image: docker:latest
+  services:
+    - docker:dind
+  cache: {}
+  dependencies:
+    - build
+  script:
+    - docker login -u gitlab-ci-token -p "$CI_BUILD_TOKEN" "$CI_REGISTRY"
+    - docker build -t "test-image" -f Dockerfile.test .
+    - docker run test-image impatience-test
+  only:
+    - master
 
 image_build:
   stage: test # if on master, run alongside tests
