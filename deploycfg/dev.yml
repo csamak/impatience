@@ -5,7 +5,7 @@ metadata:
   labels:
     app: __CI_ENVIRONMENT_SLUG__
 spec:
-  replicas: 1
+  replicas: 3
   revisionHistoryLimit: 10
   strategy:
     type: "RollingUpdate"  
