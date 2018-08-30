@@ -40,4 +40,4 @@ spec:
               name: "external"
               protocol: "TCP"
           args:
-          - impatience
+          - impatience-exe
