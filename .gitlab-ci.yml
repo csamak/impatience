@@ -22,7 +22,7 @@ build:
     - apt-get update
     - apt-get install -y liblzma-dev
     - cp /lib/x86_64-linux-gnu/liblzma.so.5 bin/lib/
-    - stack build --test --no-run-tests --copy-bins --ghc-options="-O2" --local-bin-path ./bin
+    - stack build --test --no-run-tests --copy-bins --local-bin-path ./bin
     - cp $(stack path --dist-dir)/build/impatience-test/impatience-test ./bin/impatience-test
     - strip ./bin/impatience-exe
     - ldd ./bin/impatience-exe
