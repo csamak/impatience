@@ -4,13 +4,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeOperators #-}
 
-module Lib
-  ( startApp
-  , app
-  , API
-  , Progress
-  )
-where
+module Lib where
 
 import           Data.Aeson
 import           Data.Aeson.TH
@@ -28,7 +22,7 @@ import           Data.Map                       ( fromList
 import           Data.Swagger
 import           GHC.Generics                   ( Generic )
 
-data Progress = Progress { jobId, completed, total :: Integer } deriving (Show, Generic)
+data Progress = Progress { jobId, completed, total :: Integer } deriving (Eq, Show, Generic)
 
 instance ToSchema Progress
 $(deriveJSON defaultOptions ''Progress)
