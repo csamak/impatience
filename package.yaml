@@ -67,4 +67,3 @@ tests:
       - tasty-hedgehog
       - tasty-hspec
       - tasty-hunit
-      - transformers

@@ -5,3 +5,5 @@
     - message:
       - name: Redundant build-depends entry
       - depends: tasty-discover
+    - message:
+      - name: Weeds exported
