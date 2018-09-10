@@ -13,7 +13,6 @@ import           Network.Wai.Handler.Warp
 import           Network.Wai.Logger             ( withStdoutLogger )
 import           Servant
 import           Servant.Swagger
-import           Servant.Swagger.UI
 import           Control.Lens
 import           Data.List
 import           Data.Map                       ( fromList
@@ -31,7 +30,7 @@ defaultProgressEntries = fromList $ map (\p -> (jobId p, p)) [Progress 1 5 50, P
 
 type API = "annieareyouok" :> Get '[ PlainText] String :<|> "progress" :> Capture "jobid" Integer :> Get '[ JSON] Progress
 
-type APIWithSwagger = SwaggerSchemaUI "docs" "swagger.json" :<|> API
+type APIWithSwagger = "swagger.json" :> Get '[JSON] Swagger :<|> API
 
 startApp :: IO ()
 startApp = withStdoutLogger $ \logger -> do
@@ -45,7 +44,7 @@ api :: Proxy APIWithSwagger
 api = Proxy
 
 server :: Server APIWithSwagger
-server = swaggerSchemaUIServer swaggerDoc :<|> return annie :<|> progress
+server = return swaggerDoc :<|> return annie :<|> progress
 
 annie = "https://youtu.be/h_D3VFfhvs4"
 
