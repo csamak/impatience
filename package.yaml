@@ -25,7 +25,6 @@ library:
     - lens
     - servant-server
     - servant-swagger
-    - servant-swagger-ui
     - swagger2
     - wai
     - wai-logger

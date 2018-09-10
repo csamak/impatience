@@ -19,9 +19,6 @@ build:
       - .stack-work
   script:
     - mkdir -p bin/lib
-    - apt-get update
-    - apt-get install -y liblzma-dev
-    - cp /lib/x86_64-linux-gnu/liblzma.so.5 bin/lib/
     - stack build --test --no-run-tests --copy-bins --local-bin-path ./bin
     - cp $(stack path --dist-dir)/build/impatience-test/impatience-test ./bin/impatience-test
     - strip ./bin/impatience-exe
@@ -42,8 +39,6 @@ test:
       - .stack-work
   dependencies: []
   script:
-    - apt-get update
-    - apt-get install -y liblzma-dev
     - stack build hlint weeder
     - stack exec hlint -- .
     - stack exec weeder -- . --build
