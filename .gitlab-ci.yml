@@ -57,7 +57,7 @@ test:
 
 # This re-runs the tests in an image that better reflects the deployed image
 image_test:
-  stage: test # if on master, run alongside tests
+  stage: test
   image: docker:latest
   services:
     - docker:dind
@@ -69,6 +69,8 @@ image_test:
     - echo "COPY ./bin/impatience-test /app/impatience-test" >> Dockerfile.test
     - docker build -t "test-image" -f Dockerfile.test .
     - docker run test-image impatience-test
+  only:
+    - fix-image-test-hedgehog
 
 image_build:
   stage: test # if on master, run alongside tests
