@@ -3,6 +3,7 @@ module LibTest where
 
 import           Lib
 import           Control.Monad
+import           Data.Aeson
 import           Data.Proxy
 import           Generic.Random
 import           Hedgehog
@@ -18,15 +19,23 @@ spec_json = context "ToJSON matches ToSchema" $ validateEveryToJSON (Proxy :: Pr
 
 evalHandler = evalIO . runHandler
 
+genProgress :: Gen Progress
+genProgress = Progress <$> integerGen <*> integerGen <*> integerGen
+  where integerGen = Gen.int Range.linearBounded
+
 hprop_unknownProgresIs404 = property $ do
   num    <- forAll $ Gen.int (Range.linear 3 2000)
-  result <- evalHandler . progress $ toInteger num
+  result <- evalHandler . progress $ num
   result === Left err404
 
 hprop_knownProgressIsProgress = property $ do
   num    <- forAll $ Gen.int (Range.linear 1 2)
-  result <- evalHandler . progress $ toInteger num
+  result <- evalHandler . progress $ num
   void . evalEither $ result
+
+hprop_progressToFromJsonIsIdentity = property $ do
+  prog <- forAll genProgress
+  Just prog === (decode . encode) prog
 
 unit_annie = annie @=? "https://youtu.be/h_D3VFfhvs4"
 
