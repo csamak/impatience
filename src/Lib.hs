@@ -20,14 +20,14 @@ import           Data.Map                       ( fromList
 import           Data.Swagger
 import           GHC.Generics                   ( Generic )
 
-data Progress = Progress { jobId, completed, total :: Integer } deriving (Eq, Show, Generic)
+data Progress = Progress { jobId, completed, total :: Int } deriving (Eq, Show, Generic)
 
 instance ToSchema Progress
 $(deriveJSON defaultOptions ''Progress)
 
 defaultProgressEntries = fromList $ map (\p -> (jobId p, p)) [Progress 1 5 50, Progress 2 3 10]
 
-type API = "annieareyouok" :> Get '[ PlainText] String :<|> "progress" :> Capture "jobid" Integer :> Get '[ JSON] Progress
+type API = "annieareyouok" :> Get '[ PlainText] String :<|> "progress" :> Capture "jobid" Int :> Get '[ JSON] Progress
 
 type APIWithSwagger = "swagger.json" :> Get '[JSON] Swagger :<|> API
 
@@ -47,7 +47,7 @@ server = return swaggerDoc :<|> return annie :<|> progress
 
 annie = "https://youtu.be/h_D3VFfhvs4"
 
-progress :: Integer -> Handler Progress
+progress :: Int -> Handler Progress
 progress p = maybe (throwError err404) return $ defaultProgressEntries !? p
 
 swaggerDoc =

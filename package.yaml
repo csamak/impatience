@@ -18,6 +18,10 @@ library:
     - -Werror
     - -fno-warn-missing-signatures
     - -O2
+    - -Wcompat
+    - -Wincomplete-record-updates
+    - -Wincomplete-uni-patterns
+    - -Wredundant-constraints
   dependencies:
     - aeson
     - containers
@@ -57,6 +61,7 @@ tests:
     - -fno-warn-orphans
     dependencies:
       - impatience
+      - aeson
       - generic-random
       - hedgehog
       - QuickCheck
