@@ -1,4 +1,4 @@
-FROM fpco/haskell-scratch:integer-gmp
+FROM alpine
 
 WORKDIR /app
 COPY ./bin/lib/liblzma.so.5 /usr/lib/x86_64-linux-gnu/liblzma.so.5
