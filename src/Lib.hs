@@ -14,7 +14,6 @@ import           Network.Wai.Logger             ( withStdoutLogger )
 import           Servant
 import           Servant.Swagger
 import           Control.Lens
-import           Data.List
 import           Data.Map                       ( fromList
                                                 , (!?)
                                                 )
