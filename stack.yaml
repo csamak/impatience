@@ -34,11 +34,13 @@ resolver: lts-12.7
 #  - auto-update
 #  - wai
 packages:
-- .
+  - .
 # Dependency packages to be pulled from upstream that are not in the resolver
 # using the same syntax as the packages field.
 # (e.g., acme-missiles-0.3)
-extra-deps: []
+extra-deps:
+  - archive: https://github.com/csamak/haskell-hedgehog/archive/a08c98e53558ebf13374fe6e91409d5f2e81827b.zip
+    subdirs: [hedgehog]
 
 # Override default flag values for local packages and extra-deps
 # flags: {}
