@@ -21,6 +21,7 @@ build:
     - mkdir -p bin/lib
     - stack build --test --no-run-tests --copy-bins --local-bin-path ./bin
     - cp $(stack path --dist-dir)/build/impatience-test/impatience-test ./bin/impatience-test
+    - stack build hlint weeder # for the cache
     - strip ./bin/impatience-exe
     - ldd ./bin/impatience-exe
   artifacts:
