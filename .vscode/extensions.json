@@ -1,10 +1,7 @@
 {
     "recommendations": [
-        "MaxGabriel.brittany",
+        "alanz.vscode-hie-server",
         "fatihacet.gitlab-workflow",
-        "Vans.haskero",
-        "jcanero.hoogle-vscode",
-        "justusadam.language-haskell",
         "redhat.vscode-yaml"
     ]
 }
