@@ -9,15 +9,15 @@ variables:
 steps:
 - task: CacheBeta@0
   inputs:
-    key: "cache"
+    key: "stackcache"
     path: '.azure-cache'
     cacheHitVar: 'CACHE_DOWNLOADED'
   displayName: Download cache
 - script: |
     mkdir -p $STACK_ROOT
-    tar -xzf .azure-cache/stack-root.tar.gz -C /
+    tar -xf .azure-cache/stack-root.tar.gz -C /
     mkdir -p .stack-work
-    tar -xzf .azure-cache/stack-work.tar.gz
+    tar -xf .azure-cache/stack-work.tar.gz
   condition: eq(variables.CACHE_DOWNLOADED, 'true')
   displayName: Extract cache
 - script: |
@@ -52,6 +52,6 @@ steps:
   displayName: Execute Tests In Image
 - script: |
     mkdir -p .azure-cache
-    tar -czf .azure-cache/stack-root.tar.gz $STACK_ROOT
-    tar -czf .azure-cache/stack-work.tar.gz .stack-work
+    tar -cf .azure-cache/stack-root.tar.gz $STACK_ROOT
+    tar -cf .azure-cache/stack-work.tar.gz .stack-work
   displayName: Build Cache
