@@ -45,6 +45,12 @@ steps:
     stack test --coverage
   displayName: Execute Tests
 - script: |
+    cp Dockerfile Dockerfile.test
+    echo "COPY ./bin/impatience-test /app/impatience-test" >> Dockerfile.test
+    docker build -t "test-image" -f Dockerfile.test .
+    docker run test-image impatience-test
+  displayName: Execute Tests In Image
+- script: |
     mkdir -p .azure-cache
     tar -czf .azure-cache/stack-root.tar.gz $STACK_ROOT
     tar -czf .azure-cache/stack-work.tar.gz .stack-work
