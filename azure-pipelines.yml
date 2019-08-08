@@ -1,16 +1,52 @@
 # default
 
-trigger:
-- master
-
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: 'ubuntu-16.04'
+
+variables:
+  STACK_ROOT: /home/vsts/.stack
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
-
+- task: CacheBeta@0
+  inputs:
+    key: |
+      "cache"
+      $(Build.SourcesDirectory)/stack.yaml
+    path: '.azure-cache'
+    cacheHitVar: 'CACHE_DOWNLOADED'
+  displayName: Download cache
 - script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+    mkdir -p $STACK_ROOT
+    tar -xzf .azure-cache/stack-root.tar.gz -C /
+    mkdir -p .stack-work
+    tar -xzf .azure-cache/stack-work.tar.gz
+  condition: eq(variables.CACHE_DOWNLOADED, 'true')
+  displayName: Extract cache
+- script: |
+    mkdir -p ~/.local/bin
+    curl -L https://get.haskellstack.org/stable/linux-x86_64.tar.gz | \
+      tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
+  displayName: Install stack
+- script: |
+    export PATH=$HOME/.local/bin:$PATH
+    stack setup
+  displayName: Install GHC
+- script: |
+    export PATH=$HOME/.local/bin:$PATH
+    mkdir -p bin/lib
+    stack build --test --no-run-tests --copy-bins --local-bin-path ./bin
+    cp $(stack path --dist-dir)/build/impatience-test/impatience-test ./bin/impatience-test
+    stack build hlint weeder
+    strip ./bin/impatience-exe
+    ldd ./bin/impatience-exe
+  displayName: Build All
+- script: |
+    stack exec hlint -- .
+    stack exec weeder -- . --build
+    stack test --coverage
+  displayName: Execute Tests
+- script: |
+    mkdir -p .azure-cache
+    tar -czf .azure-cache/stack-root.tar.gz $STACK_ROOT
+    tar -czf .azure-cache/stack-work.tar.gz .stack-work
+  displayName: Build Cache
