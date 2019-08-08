@@ -41,6 +41,7 @@ steps:
     ldd ./bin/impatience-exe
   displayName: Build All
 - script: |
+    export PATH=$HOME/.local/bin:$PATH
     stack exec hlint -- .
     stack exec weeder -- . --build
     stack test --coverage
