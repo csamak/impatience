@@ -9,9 +9,7 @@ variables:
 steps:
 - task: CacheBeta@0
   inputs:
-    key: |
-      "cache"
-      $(Build.SourcesDirectory)/stack.yaml
+    key: "cache"
     path: '.azure-cache'
     cacheHitVar: 'CACHE_DOWNLOADED'
   displayName: Download cache
