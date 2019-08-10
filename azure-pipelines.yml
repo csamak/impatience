@@ -50,6 +50,12 @@ steps:
     docker build -t "test-image" -f Dockerfile.test .
     docker run test-image impatience-test
   displayName: Execute Tests In Image
+- task: Docker@2
+  inputs:
+    containerRegistry: 'impatienceregistry'
+    repository: 'impatience'
+    command: 'buildAndPush'
+    Dockerfile: '**/Dockerfile'
 - script: |
     mkdir -p .azure-cache
     tar -cf .azure-cache/stack-root.tar.gz $STACK_ROOT
