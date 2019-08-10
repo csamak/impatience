@@ -56,6 +56,8 @@ steps:
     repository: 'impatience'
     command: 'buildAndPush'
     Dockerfile: '**/Dockerfile'
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  displayName: Build Image
 - script: |
     mkdir -p .azure-cache
     tar -cf .azure-cache/stack-root.tar.gz $STACK_ROOT
