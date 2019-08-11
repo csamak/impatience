@@ -89,7 +89,7 @@ stages:
               kubernetesServiceConnection: 'impatienceKubernetes'
               namespace: 'default'
               secretType: 'dockerRegistry'
-              secretName: 'impatiencePullSecret'
+              secretName: 'impatiencepullsecret'
               dockerRegistryEndpoint: 'impatienceregistry'
           - task: KubernetesManifest@0
             displayName: Deploy to k8s cluster
@@ -100,5 +100,5 @@ stages:
               manifests: |
                 $(Pipeline.Workspace)/manifests/dev.yml
                 $(Pipeline.Workspace)/manifests/service.yml
-              imagePullSecrets: 'impatiencePullSecret'
+              imagePullSecrets: 'impatiencepullsecret'
               containers: 'impatience.azurecr.io/impatience:{{ Build.BuildId }}'
