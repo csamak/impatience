@@ -86,16 +86,19 @@ stages:
             displayName: Create image pull secret
             inputs:
               action: 'createSecret'
+              kubernetesServiceConnection: 'impatienceKubernetes'
+              namespace: 'default'
+              secretType: 'dockerRegistry'
               secretName: 'impatiencePullSecret'
               dockerRegistryEndpoint: 'impatienceregistry'
           - task: KubernetesManifest@0
             displayName: Deploy to k8s cluster
             inputs:
               action: deploy
+              kubernetesServiceConnection: 'impatienceKubernetes'
+              namespace: 'default'
               manifests: |
                 $(Pipeline.Workspace)/manifests/dev.yml
                 $(Pipeline.Workspace)/manifests/service.yml
-              imagePullSecrets: |
-                'impatiencePullSecret'
-              containers: |
-                'impatience.azurecr.io/impatience:{{ Build.BuildId }}'
+              imagePullSecrets: 'impatiencePullSecret'
+              containers: 'impatience.azurecr.io/impatience:{{ Build.BuildId }}'
