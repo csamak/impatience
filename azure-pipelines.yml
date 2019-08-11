@@ -1,65 +1,101 @@
 # default
-
-pool:
-  vmImage: 'ubuntu-16.04'
-
 variables:
   STACK_ROOT: /home/vsts/.stack
 
-steps:
-- task: CacheBeta@0
-  inputs:
-    key: "stackcache"
-    path: '.azure-cache'
-    cacheHitVar: 'CACHE_DOWNLOADED'
-  displayName: Download cache
-- script: |
-    mkdir -p $STACK_ROOT
-    tar -xf .azure-cache/stack-root.tar.gz -C /
-    mkdir -p .stack-work
-    tar -xf .azure-cache/stack-work.tar.gz
-  condition: eq(variables.CACHE_DOWNLOADED, 'true')
-  displayName: Extract cache
-- script: |
-    mkdir -p ~/.local/bin
-    curl -L https://get.haskellstack.org/stable/linux-x86_64.tar.gz | \
-      tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
-  displayName: Install stack
-- script: |
-    export PATH=$HOME/.local/bin:$PATH
-    stack setup
-  displayName: Install GHC
-- script: |
-    export PATH=$HOME/.local/bin:$PATH
-    mkdir -p bin/lib
-    stack build --test --no-run-tests --copy-bins --local-bin-path ./bin
-    cp $(stack path --dist-dir)/build/impatience-test/impatience-test ./bin/impatience-test
-    stack build hlint weeder
-    strip ./bin/impatience-exe
-    ldd ./bin/impatience-exe
-  displayName: Build All
-- script: |
-    export PATH=$HOME/.local/bin:$PATH
-    stack exec hlint -- .
-    stack exec weeder -- . --build
-    stack test --coverage
-  displayName: Execute Tests
-- script: |
-    cp Dockerfile Dockerfile.test
-    echo "COPY ./bin/impatience-test /app/impatience-test" >> Dockerfile.test
-    docker build -t "test-image" -f Dockerfile.test .
-    docker run test-image impatience-test
-  displayName: Execute Tests In Image
-- task: Docker@2
-  inputs:
-    containerRegistry: 'impatienceregistry'
-    repository: 'impatience'
-    command: 'buildAndPush'
-    Dockerfile: '**/Dockerfile'
+stages:
+- stage: Build
+  displayName: Build/Test/Push
+  jobs:
+  - job: Build
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - task: CacheBeta@0
+      inputs:
+        key: "stackcache"
+        path: '.azure-cache'
+        cacheHitVar: 'CACHE_DOWNLOADED'
+      displayName: Download cache
+    - script: |
+        mkdir -p $STACK_ROOT
+        tar -xf .azure-cache/stack-root.tar.gz -C /
+        mkdir -p .stack-work
+        tar -xf .azure-cache/stack-work.tar.gz
+      condition: eq(variables.CACHE_DOWNLOADED, 'true')
+      displayName: Extract cache
+    - script: |
+        mkdir -p ~/.local/bin
+        curl -L https://get.haskellstack.org/stable/linux-x86_64.tar.gz | \
+          tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
+      displayName: Install stack
+    - script: |
+        export PATH=$HOME/.local/bin:$PATH
+        stack setup
+      displayName: Install GHC
+    - script: |
+        export PATH=$HOME/.local/bin:$PATH
+        mkdir -p bin/lib
+        stack build --test --no-run-tests --copy-bins --local-bin-path ./bin
+        cp $(stack path --dist-dir)/build/impatience-test/impatience-test ./bin/impatience-test
+        stack build hlint weeder
+        strip ./bin/impatience-exe
+        ldd ./bin/impatience-exe
+      displayName: Build All
+    - script: |
+        export PATH=$HOME/.local/bin:$PATH
+        stack exec hlint -- .
+        stack exec weeder -- . --build
+        stack test --coverage
+      displayName: Execute Tests
+    - script: |
+        cp Dockerfile Dockerfile.test
+        echo "COPY ./bin/impatience-test /app/impatience-test" >> Dockerfile.test
+        docker build -t "test-image" -f Dockerfile.test .
+        docker run test-image impatience-test
+      displayName: Execute Tests In Image
+    - task: Docker@2
+      inputs:
+        containerRegistry: 'impatienceregistry'
+        repository: 'impatience'
+        command: 'buildAndPush'
+        Dockerfile: '**/Dockerfile'
+      condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+      displayName: Build and Push Image
+    - script: |
+        mkdir -p .azure-cache
+        tar -cf .azure-cache/stack-root.tar.gz $STACK_ROOT
+        tar -cf .azure-cache/stack-work.tar.gz .stack-work
+      displayName: Build Cache
+    - upload: deploycfg
+      artifact: manifests
+- stage: Deploy
+  displayName: Deploy to k8s
+  dependsOn: Build
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
-  displayName: Build Image
-- script: |
-    mkdir -p .azure-cache
-    tar -cf .azure-cache/stack-root.tar.gz $STACK_ROOT
-    tar -cf .azure-cache/stack-work.tar.gz .stack-work
-  displayName: Build Cache
+  jobs:
+  - deployment: Deploy
+    displayName: Deploy to k8s
+    pool:
+      vmImage: 'ubuntu-latest'
+    environment: 'impatience.default'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: KubernetesManifest@0
+            displayName: Create image pull secret
+            inputs:
+              action: 'createSecret'
+              secretName: 'impatiencePullSecret'
+              dockerRegistryEndpoint: 'impatienceregistry'
+          - task: KubernetesManifest@0
+            displayName: Deploy to k8s cluster
+            inputs:
+              action: deploy
+              manifests: |
+                $(Pipeline.Workspace)/manifests/dev.yml
+                $(Pipeline.Workspace)/manifests/service.yml
+              imagePullSecrets: |
+                'impatiencePullSecret'
+              containers: |
+                'impatience.azurecr.io/impatience:{{ Build.BuildId }}'
