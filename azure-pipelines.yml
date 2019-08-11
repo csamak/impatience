@@ -1,6 +1,7 @@
 # default
 variables:
   STACK_ROOT: /home/vsts/.stack
+  tag: '$(Build.BuildId)'
 
 stages:
 - stage: Build
@@ -59,6 +60,7 @@ stages:
         repository: 'impatience'
         command: 'buildAndPush'
         Dockerfile: '**/Dockerfile'
+        tags: $(tag)
       # condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
       displayName: Build and Push Image
     - script: |
@@ -102,4 +104,4 @@ stages:
                 $(Pipeline.Workspace)/manifests/dev.yml
                 $(Pipeline.Workspace)/manifests/service.yml
               imagePullSecrets: 'impatiencepullsecret'
-              containers: 'impatience.azurecr.io/impatience:{{ Build.BuildId }}'
+              containers: impatience.azurecr.io/impatience:$(tag)
