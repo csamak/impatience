@@ -65,6 +65,7 @@ stages:
         mkdir -p .azure-cache
         tar -cf .azure-cache/stack-root.tar.gz $STACK_ROOT
         tar -cf .azure-cache/stack-work.tar.gz .stack-work
+      condition: eq(variables.CACHE_DOWNLOADED, 'false')
       displayName: Build Cache
     - upload: deploycfg
       artifact: manifests
