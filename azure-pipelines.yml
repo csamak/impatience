@@ -23,11 +23,11 @@ stages:
         tar -xf .azure-cache/stack-work.tar.gz
       condition: eq(variables.CACHE_DOWNLOADED, 'true')
       displayName: Extract cache
-    - script: |
-        mkdir -p ~/.local/bin
-        curl -L https://get.haskellstack.org/stable/linux-x86_64.tar.gz | \
-          tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
-      displayName: Install stack
+    # - script: |
+    #     mkdir -p ~/.local/bin
+    #     curl -L https://get.haskellstack.org/stable/linux-x86_64.tar.gz | \
+    #       tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
+    #   displayName: Install stack
     - script: |
         export PATH=$HOME/.local/bin:$PATH
         stack setup
@@ -59,7 +59,7 @@ stages:
         repository: 'impatience'
         command: 'buildAndPush'
         Dockerfile: '**/Dockerfile'
-      condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+      # condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
       displayName: Build and Push Image
     - script: |
         mkdir -p .azure-cache
@@ -71,7 +71,7 @@ stages:
 - stage: Deploy
   displayName: Deploy to k8s
   dependsOn: Build
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  # condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   jobs:
   - deployment: Deploy
     displayName: Deploy to k8s
