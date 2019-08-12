@@ -127,7 +127,7 @@ stages:
         tags: $(tag)
 - stage: Deploy
   displayName: Deploy to k8s
-  dependsOn: |
+  dependsOn:
   - Test
   - Push
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
