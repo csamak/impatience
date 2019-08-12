@@ -1,5 +1,5 @@
 variables:
-  STACK_ROOT: .stack-root-cache
+  STACK_ROOT: /home/vsts/.stack
   tag: '$(Build.BuildId)'
 
 stages:
