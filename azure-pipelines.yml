@@ -4,7 +4,7 @@ variables:
 
 stages:
 - stage: Build
-  displayName: Build/Test/Push
+  displayName: Build
   jobs:
   - job: Build
     pool:
@@ -39,12 +39,22 @@ stages:
     - script: |
         export PATH=$HOME/.local/bin:$PATH
         mkdir -p bin/lib
-        stack build --test --no-run-tests --copy-bins --local-bin-path ./bin
-        cp $(stack path --dist-dir)/build/impatience-test/impatience-test ./bin/impatience-test
+        stack build --copy-bins --local-bin-path ./bin
         stack build hlint weeder
+        stack exec hlint -- .
+        stack exec weeder -- . --build
         strip ./bin/impatience-exe
         ldd ./bin/impatience-exe
-      displayName: Build All
+      displayName: Build Non-Tests
+    - publish: bin/impatience-exe
+      artifact: impatience-exe
+    - script: |
+        export PATH=$HOME/.local/bin:$PATH
+        stack build --test --no-run-tests --coverage
+        cp $(stack path --dist-dir)/build/impatience-test/impatience-test ./bin/impatience-test
+      displayName: Build Tests
+    - publish: bin/impatience-test
+      artifact: impatience-test
     - script: |
         mkdir -p .azure-cache
         tar -cf .azure-cache/stack-root.tar.gz $STACK_ROOT
@@ -53,28 +63,43 @@ stages:
       condition: eq(variables.CACHE_DOWNLOADED, 'false')
     - publish: deploycfg
       artifact: manifests
+- stage: Test
+  displayName: Test
+  dependsOn: Build
+  jobs:
   - job: Test
-    dependsOn: Build
     pool:
       vmImage: 'ubuntu-latest'
     steps:
+    - download: current
+      artifact: impatience-test
+    - script: |
+        mkdir -p ~/.local/bin
+        curl -L https://get.haskellstack.org/stable/linux-x86_64.tar.gz | \
+          tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
+      displayName: Install stack
     - script: |
         export PATH=$HOME/.local/bin:$PATH
-        stack exec hlint -- .
-        stack exec weeder -- . --build
-        stack test --coverage
-      displayName: Execute Tests
+        cp $(Pipeline.Workspace)/impatience-test .
+        ./impatience-test
+        stack hpc report impatience-test.tix
+      displayName: Execute Tests (w/coverage)
   - job: ImageTest
-    dependsOn: Build
     pool:
       vmImage: 'ubuntu-latest'
     steps:
+    - download: current
+      artifact: impatience-test
     - script: |
         cp Dockerfile Dockerfile.test
-        echo "COPY ./bin/impatience-test /app/impatience-test" >> Dockerfile.test
+        echo "COPY $(Pipeline.Workspace)/impatience-test /app/impatience-test" >> Dockerfile.test
         docker build -t "test-image" -f Dockerfile.test .
         docker run test-image impatience-test
       displayName: Execute Tests In Image
+- stage: Push
+  displayName: Push images
+  dependsOn: Build
+  jobs:
   - job: Push
     displayName: Push image to registry
     dependsOn: Build
@@ -82,6 +107,11 @@ stages:
     pool:
       vmImage: 'ubuntu-latest'
     steps:
+    - download: current
+      artifact: impatience-exe
+    - script: |
+        mkdir -p ./bin
+        cp $(Pipeline.Workspace)/impatience-exe ./bin/impatience-exe
     - task: Docker@2
       displayName: Build and Push Image
       inputs:
