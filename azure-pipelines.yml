@@ -53,7 +53,6 @@ stages:
         stack build --copy-bins --local-bin-path ./bin
         stack build hlint weeder
         stack exec hlint -- .
-        stack exec weeder -- . --build
         strip ./bin/impatience-exe
         ldd ./bin/impatience-exe
       displayName: Build Non-Tests
@@ -61,6 +60,7 @@ stages:
       artifact: exe
     - script: |
         export PATH=$HOME/.local/bin:$PATH
+        stack exec weeder -- . --build # weeder here because it builds tests
         stack build --test --no-run-tests --coverage
         cp $(stack path --dist-dir)/build/impatience-test/impatience-test ./bin/impatience-test
       displayName: Build Tests
