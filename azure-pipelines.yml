@@ -64,7 +64,7 @@ stages:
         stack exec weeder -- . --build
         stack test --coverage
       displayName: Execute Tests
-  - job: Image Test
+  - job: ImageTest
     dependsOn: Build
     pool:
       vmImage: 'ubuntu-latest'
