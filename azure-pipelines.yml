@@ -17,16 +17,27 @@ stages:
           stack
           $(Agent.OS)
           $(Build.SourcesDirectory)/stack.yaml
-          $(Build.SourcesDirectory)/package.yaml
-        path: '.azure-cache'
-        cacheHitVar: 'CACHE_DOWNLOADED'
+        path: '.stack-root-cache'
+        cacheHitVar: 'ROOT_CACHE_HIT'
     - script: |
         mkdir -p $STACK_ROOT
         tar -xf .azure-cache/stack-root.tar.gz -C /
+      displayName: Extract stack root cache
+      condition: eq(variables.ROOT_CACHE_HIT, 'true')
+    - task: CacheBeta@0
+      displayName: Download stack work cache
+      inputs:
+        key: |
+          stack
+          $(Agent.OS)
+          $(Build.SourcesDirectory)/package.yaml
+        path: '.stack-work-cache'
+        cacheHitVar: 'WORK_CACHE_HIT'
+    - script: |
         mkdir -p .stack-work
         tar -xf .azure-cache/stack-work.tar.gz
-      displayName: Extract cache
-      condition: eq(variables.CACHE_DOWNLOADED, 'true')
+      displayName: Extract stack work cache
+      condition: eq(variables.WORK_CACHE_HIT, 'true')
     - script: |
         mkdir -p ~/.local/bin
         curl -L https://get.haskellstack.org/stable/linux-x86_64.tar.gz | \
@@ -47,20 +58,24 @@ stages:
         ldd ./bin/impatience-exe
       displayName: Build Non-Tests
     - publish: bin/impatience-exe
-      artifact: impatience-exe
+      artifact: exe
     - script: |
         export PATH=$HOME/.local/bin:$PATH
         stack build --test --no-run-tests --coverage
         cp $(stack path --dist-dir)/build/impatience-test/impatience-test ./bin/impatience-test
       displayName: Build Tests
     - publish: bin/impatience-test
-      artifact: impatience-test
+      artifact: test-exe
     - script: |
-        mkdir -p .azure-cache
-        tar -cf .azure-cache/stack-root.tar.gz $STACK_ROOT
-        tar -cf .azure-cache/stack-work.tar.gz .stack-work
-      displayName: Build Cache
-      condition: eq(variables.CACHE_DOWNLOADED, 'false')
+        mkdir -p .stack-root-cache
+        tar -cf .stack-root-cache/stack-root.tar.gz $STACK_ROOT
+      displayName: Build stack root cache
+      condition: eq(variables.ROOT_CACHE_HIT, 'false')
+    - script: |
+        mkdir -p .stack-work-cache
+        tar -cf .stack-work-cache/stack-work.tar.gz .stack-work
+      displayName: Build stack work cache
+      condition: eq(variables.WORK_CACHE_HIT, 'false')
     - publish: deploycfg
       artifact: manifests
 - stage: Test
@@ -71,8 +86,22 @@ stages:
     pool:
       vmImage: 'ubuntu-latest'
     steps:
+    - task: CacheBeta@0
+      displayName: Download stack root cache
+      inputs:
+        key: |
+          stack
+          $(Agent.OS)
+          $(Build.SourcesDirectory)/stack.yaml
+        path: '.stack-root-cache'
+        cacheHitVar: 'ROOT_CACHE_HIT'
+    - script: |
+        mkdir -p $STACK_ROOT
+        tar -xf .azure-cache/stack-root.tar.gz -C /
+      displayName: Extract stack root cache
+      condition: eq(variables.ROOT_CACHE_HIT, 'true')
     - download: current
-      artifact: impatience-test
+      artifact: test-exe
     - script: |
         mkdir -p ~/.local/bin
         curl -L https://get.haskellstack.org/stable/linux-x86_64.tar.gz | \
@@ -80,8 +109,7 @@ stages:
       displayName: Install stack
     - script: |
         export PATH=$HOME/.local/bin:$PATH
-        cp $(Pipeline.Workspace)/impatience-test .
-        ls -l -R
+        cp $(Pipeline.Workspace)/test-exe/impatience-test .
         ./impatience-test
         stack hpc report impatience-test.tix
       displayName: Execute Tests (w/coverage)
@@ -90,14 +118,14 @@ stages:
       vmImage: 'ubuntu-latest'
     steps:
     - download: current
-      artifact: impatience-test
+      artifact: test-exe
     - download: current
-      artifact: impatience-exe
+      artifact: exe
     - script: |
         cp Dockerfile Dockerfile.test
         mkdir -p bin
-        cp -a $(Pipeline.Workspace)/. ./bin/
-        ls -l -R
+        cp $(Pipeline.Workspace)/test-exe/impatience-test bin/impatience-test
+        cp $(Pipeline.Workspace)/exe/impatience-exe bin/impatience-exe
         echo "COPY $(Pipeline.Workspace)/impatience-test /app/impatience-test" >> Dockerfile.test
         docker build -t "test-image" -f Dockerfile.test .
         docker run test-image impatience-test
@@ -113,10 +141,10 @@ stages:
       vmImage: 'ubuntu-latest'
     steps:
     - download: current
-      artifact: impatience-exe
+      artifact: exe
     - script: |
-        mkdir -p ./bin
-        cp $(Pipeline.Workspace)/impatience-exe ./bin/impatience-exe
+        mkdir -p bin
+        cp $(Pipeline.Workspace)/exe/impatience-exe bin/impatience-exe
     - task: Docker@2
       displayName: Build and Push Image
       inputs:
