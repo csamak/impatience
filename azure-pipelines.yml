@@ -66,29 +66,14 @@ stages:
     pool:
       vmImage: 'ubuntu-latest'
     steps:
-    - task: CacheBeta@0
-      displayName: Download stack root cache
-      inputs:
-        key: |
-          stack
-          $(Agent.OS)
-          $(Build.SourcesDirectory)/stack.yaml
-        path: $(STACK_ROOT)
-        cacheHitVar: 'ROOT_CACHE_HIT'
     - download: current
       artifact: test-exe
-    - script: |
-        mkdir -p ~/.local/bin
-        mkdir -p $STACK_ROOT
-        curl -L https://get.haskellstack.org/stable/linux-x86_64.tar.gz | \
-          tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
-      displayName: Install stack
     - script: |
         export PATH=$HOME/.local/bin:$PATH
         cp $(Pipeline.Workspace)/test-exe/impatience-test .
         chmod 777 ./impatience-test
         ./impatience-test
-        stack hpc report impatience-test.tix
+        hpc report impatience-test.tix
       displayName: Execute Tests (w/coverage)
   - job: ImageTest
     pool:
