@@ -95,7 +95,7 @@ stages:
         cp $(Pipeline.Workspace)/test-exe/impatience-test .
         chmod 777 ./impatience-test
         ./impatience-test
-        hpc report impatience-test.tix
+#       hpc report impatience-test.tix
       displayName: Execute Tests (w/coverage)
   - job: ImageTest
     pool:
@@ -112,6 +112,8 @@ stages:
         cp $(Pipeline.Workspace)/exe/impatience-exe bin/impatience-exe
         chmod -R 777 ./bin
         echo "COPY bin/impatience-test /app/impatience-test" >> Dockerfile.test
+        echo "ENV TASTY_ANSI_TRICKS=false" >> Dockerfile.test
+        echo "ENV TASTY_HIDE_SUCCESSES=true" >> Dockerfile.test
         docker build -t "test-image" -f Dockerfile.test .
         docker run test-image impatience-test
       displayName: Execute Tests In Image
