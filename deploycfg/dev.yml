@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: impatience
   labels:
-    app: __CI_ENVIRONMENT_SLUG__
+    app: impatience
 spec:
   replicas: 3
   revisionHistoryLimit: 10
@@ -11,17 +11,15 @@ spec:
     type: "RollingUpdate"  
   selector:
     matchLabels:
-      app: __CI_ENVIRONMENT_SLUG__
+      app: impatience
   template:
     metadata:
       labels:
-        app: __CI_ENVIRONMENT_SLUG__
+        app: impatience
     spec:
-      imagePullSecrets:
-        - name: registry-impatience-gitlab-key
       containers:
         - name: impatience
-          image: __IMAGE__
+          image: impatience.azurecr.io/impatience
           imagePullPolicy: Always
           livenessProbe:
             httpGet:
