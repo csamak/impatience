@@ -21,7 +21,7 @@ stages:
         cacheHitVar: 'ROOT_CACHE_HIT'
     - script: |
         mkdir -p $STACK_ROOT
-        tar -xf .azure-cache/stack-root.tar.gz -C /
+        tar -xf .stack-root-cache/stack-root.tar.gz -C /
       displayName: Extract stack root cache
       condition: eq(variables.ROOT_CACHE_HIT, 'true')
     - task: CacheBeta@0
@@ -35,7 +35,7 @@ stages:
         cacheHitVar: 'WORK_CACHE_HIT'
     - script: |
         mkdir -p .stack-work
-        tar -xf .azure-cache/stack-work.tar.gz
+        tar -xf .stack-work-cache/stack-work.tar.gz
       displayName: Extract stack work cache
       condition: eq(variables.WORK_CACHE_HIT, 'true')
     - script: |
@@ -97,7 +97,7 @@ stages:
         cacheHitVar: 'ROOT_CACHE_HIT'
     - script: |
         mkdir -p $STACK_ROOT
-        tar -xf .azure-cache/stack-root.tar.gz -C /
+        tar -xf .stack-root-cache/stack-root.tar.gz -C /
       displayName: Extract stack root cache
       condition: eq(variables.ROOT_CACHE_HIT, 'true')
     - download: current
