@@ -11,6 +11,7 @@ stages:
       vmImage: 'ubuntu-latest'
     steps:
     - task: CacheBeta@0
+      displayName: Download cache
       inputs:
         key: |
           stack
@@ -19,14 +20,13 @@ stages:
           $(Build.SourcesDirectory)/package.yaml
         path: '.azure-cache'
         cacheHitVar: 'CACHE_DOWNLOADED'
-      displayName: Download cache
     - script: |
         mkdir -p $STACK_ROOT
         tar -xf .azure-cache/stack-root.tar.gz -C /
         mkdir -p .stack-work
         tar -xf .azure-cache/stack-work.tar.gz
-      condition: eq(variables.CACHE_DOWNLOADED, 'true')
       displayName: Extract cache
+      condition: eq(variables.CACHE_DOWNLOADED, 'true')
     - script: |
         mkdir -p ~/.local/bin
         curl -L https://get.haskellstack.org/stable/linux-x86_64.tar.gz | \
@@ -46,34 +46,50 @@ stages:
         ldd ./bin/impatience-exe
       displayName: Build All
     - script: |
+        mkdir -p .azure-cache
+        tar -cf .azure-cache/stack-root.tar.gz $STACK_ROOT
+        tar -cf .azure-cache/stack-work.tar.gz .stack-work
+      displayName: Build Cache
+      condition: eq(variables.CACHE_DOWNLOADED, 'false')
+    - publish: deploycfg
+      artifact: manifests
+  - job: Test
+    dependsOn: Build
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - script: |
         export PATH=$HOME/.local/bin:$PATH
         stack exec hlint -- .
         stack exec weeder -- . --build
         stack test --coverage
       displayName: Execute Tests
+  - job: Image Test
+    dependsOn: Build
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
     - script: |
         cp Dockerfile Dockerfile.test
         echo "COPY ./bin/impatience-test /app/impatience-test" >> Dockerfile.test
         docker build -t "test-image" -f Dockerfile.test .
         docker run test-image impatience-test
       displayName: Execute Tests In Image
+  - job: Push
+    displayName: Push image to registry
+    dependsOn: Build
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
     - task: Docker@2
+      displayName: Build and Push Image
       inputs:
         containerRegistry: 'impatienceregistry'
         repository: 'impatience'
         command: 'buildAndPush'
         Dockerfile: '**/Dockerfile'
         tags: $(tag)
-      condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
-      displayName: Build and Push Image
-    - script: |
-        mkdir -p .azure-cache
-        tar -cf .azure-cache/stack-root.tar.gz $STACK_ROOT
-        tar -cf .azure-cache/stack-work.tar.gz .stack-work
-      condition: eq(variables.CACHE_DOWNLOADED, 'false')
-      displayName: Build Cache
-    - upload: deploycfg
-      artifact: manifests
 - stage: Deploy
   displayName: Deploy to k8s
   dependsOn: Build

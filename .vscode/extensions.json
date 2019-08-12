@@ -2,6 +2,7 @@
     "recommendations": [
         "alanz.vscode-hie-server",
         "fatihacet.gitlab-workflow",
+        "ms-azure-devops.azure-pipelines",
         "redhat.vscode-yaml"
     ]
 }
