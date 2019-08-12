@@ -24,6 +24,7 @@ stages:
         key: |
           stack-work
           $(Agent.OS)
+          $(Build.SourcesDirectory)/stack.yaml
           $(Build.SourcesDirectory)/package.yaml
         path: '.stack-work'
     - script: |
