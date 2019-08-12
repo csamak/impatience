@@ -12,7 +12,11 @@ stages:
     steps:
     - task: CacheBeta@0
       inputs:
-        key: "stackcache"
+        key: |
+          stack
+          $(Agent.OS)
+          $(Build.SourcesDirectory)/stack.yaml
+          $(Build.SourcesDirectory)/package.yaml
         path: '.azure-cache'
         cacheHitVar: 'CACHE_DOWNLOADED'
       displayName: Download cache
