@@ -26,7 +26,13 @@ stages:
           $(Agent.OS)
           $(Build.SourcesDirectory)/stack.yaml
           $(Build.SourcesDirectory)/package.yaml
-        path: '.stack-work'
+        path: '.stack-work-cache'
+        cacheHitVar: 'WORK_CACHE_HIT'
+    - script: |
+        mkdir -p .stack-work
+        tar -xf .stack-work-cache/stack-work.tar.gz
+      displayName: Extract stack work cache
+      condition: eq(variables.WORK_CACHE_HIT, 'true')
     - script: |
         mkdir -p ~/.local/bin
         mkdir -p $STACK_ROOT
@@ -56,6 +62,11 @@ stages:
       displayName: Build Tests
     - publish: bin/impatience-test
       artifact: test-exe
+    - script: |
+        mkdir -p .stack-work-cache
+        tar -cf .stack-work-cache/stack-work.tar.gz .stack-work
+      displayName: Build stack work cache
+      condition: eq(variables.WORK_CACHE_HIT, 'false')
     - publish: deploycfg
       artifact: manifests
 - stage: Test
