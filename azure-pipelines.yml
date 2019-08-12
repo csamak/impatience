@@ -74,23 +74,18 @@ stages:
           $(Build.SourcesDirectory)/stack.yaml
         path: $(STACK_ROOT)
         cacheHitVar: 'ROOT_CACHE_HIT'
-    - script: |
-        mkdir -p $STACK_ROOT
-        tar -xf .stack-root-cache/stack-root.tar.gz -C /
-      displayName: Extract stack root cache
-      condition: eq(variables.ROOT_CACHE_HIT, 'true')
     - download: current
       artifact: test-exe
     - script: |
         mkdir -p ~/.local/bin
+        mkdir -p $STACK_ROOT
         curl -L https://get.haskellstack.org/stable/linux-x86_64.tar.gz | \
           tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
       displayName: Install stack
     - script: |
         export PATH=$HOME/.local/bin:$PATH
         cp $(Pipeline.Workspace)/test-exe/impatience-test .
-        ls -l -R $(Pipeline.Workspace)
-        ls -l -R .
+        chmod 777 ./impatience-test
         ./impatience-test
         stack hpc report impatience-test.tix
       displayName: Execute Tests (w/coverage)
@@ -107,9 +102,8 @@ stages:
         mkdir -p bin
         cp $(Pipeline.Workspace)/test-exe/impatience-test bin/impatience-test
         cp $(Pipeline.Workspace)/exe/impatience-exe bin/impatience-exe
-        ls -l -R $(Pipeline.Workspace)
-        ls -l -R .
-        echo "COPY $(Pipeline.Workspace)/impatience-test /app/impatience-test" >> Dockerfile.test
+        chmod -R 777 ./bin
+        echo "COPY bin/impatience-test /app/impatience-test" >> Dockerfile.test
         docker build -t "test-image" -f Dockerfile.test .
         docker run test-image impatience-test
       displayName: Execute Tests In Image
