@@ -14,15 +14,21 @@ stages:
       displayName: Download stack root cache
       inputs:
         key: |
-          stack-root
+          stack-root-cache
           $(Agent.OS)
           $(Build.SourcesDirectory)/stack.yaml
-        path: $(STACK_ROOT)
+        path: '.stack-root-cache'
+        cacheHitVar: 'ROOT_CACHE_HIT'
+    - script: |
+        mkdir -p .stack-root-cache
+        tar -cf .stack-root-cache/stack-root.tar.gz $STACK_ROOT
+      displayName: Build stack root cache
+      condition: eq(variables.ROOT_CACHE_HIT, 'false')
     - task: CacheBeta@0
       displayName: Download stack work cache
       inputs:
         key: |
-          stack-work-packages
+          stack-work-cache
           $(Agent.OS)
           $(Build.SourcesDirectory)/stack.yaml
           $(Build.SourcesDirectory)/package.yaml
@@ -62,6 +68,11 @@ stages:
       displayName: Build Tests
     - publish: bin/impatience-test
       artifact: test-exe
+    - script: |
+        mkdir -p .stack-root-cache
+        tar -cf .stack-root-cache/stack-root.tar.gz $STACK_ROOT
+      displayName: Build stack root cache
+      condition: eq(variables.ROOT_CACHE_HIT, 'false')
     - script: |
         mkdir -p .stack-work-cache
         tar -cf .stack-work-cache/stack-work.tar.gz .stack-work
