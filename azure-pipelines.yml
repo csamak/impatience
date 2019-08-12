@@ -22,7 +22,7 @@ stages:
       displayName: Download stack work cache
       inputs:
         key: |
-          stack-work
+          stack-work-packages
           $(Agent.OS)
           $(Build.SourcesDirectory)/stack.yaml
           $(Build.SourcesDirectory)/package.yaml
