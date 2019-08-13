@@ -132,6 +132,7 @@ stages:
     - script: |
         mkdir -p bin
         cp $(Pipeline.Workspace)/exe/impatience-exe bin/impatience-exe
+        chmod -R 777 ./bin
     - task: Docker@2
       displayName: Build and Push Image
       inputs:
