@@ -4,31 +4,44 @@ variables:
 
 stages:
 - stage: Build
-  displayName: Build/Test/Push
+  displayName: Build
   jobs:
   - job: Build
     pool:
       vmImage: 'ubuntu-latest'
     steps:
     - task: CacheBeta@0
+      displayName: Download stack root cache
       inputs:
         key: |
-          stack
+          stack-root-cache
+          $(Agent.OS)
+          $(Build.SourcesDirectory)/stack.yaml
+        path: '.stack-root-cache'
+        cacheHitVar: 'ROOT_CACHE_HIT'
+    - script: |
+        mkdir -p $STACK_ROOT
+        tar -xf .stack-root-cache/stack-root.tar.gz -C /
+      displayName: Extract stack root cache
+      condition: eq(variables.ROOT_CACHE_HIT, 'true')
+    - task: CacheBeta@0
+      displayName: Download stack work cache
+      inputs:
+        key: |
+          stack-work-cache
           $(Agent.OS)
           $(Build.SourcesDirectory)/stack.yaml
           $(Build.SourcesDirectory)/package.yaml
-        path: '.azure-cache'
-        cacheHitVar: 'CACHE_DOWNLOADED'
-      displayName: Download cache
+        path: '.stack-work-cache'
+        cacheHitVar: 'WORK_CACHE_HIT'
     - script: |
-        mkdir -p $STACK_ROOT
-        tar -xf .azure-cache/stack-root.tar.gz -C /
         mkdir -p .stack-work
-        tar -xf .azure-cache/stack-work.tar.gz
-      condition: eq(variables.CACHE_DOWNLOADED, 'true')
-      displayName: Extract cache
+        tar -xf .stack-work-cache/stack-work.tar.gz
+      displayName: Extract stack work cache
+      condition: eq(variables.WORK_CACHE_HIT, 'true')
     - script: |
         mkdir -p ~/.local/bin
+        mkdir -p $STACK_ROOT
         curl -L https://get.haskellstack.org/stable/linux-x86_64.tar.gz | \
           tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
       displayName: Install stack
@@ -39,44 +52,99 @@ stages:
     - script: |
         export PATH=$HOME/.local/bin:$PATH
         mkdir -p bin/lib
-        stack build --test --no-run-tests --copy-bins --local-bin-path ./bin
-        cp $(stack path --dist-dir)/build/impatience-test/impatience-test ./bin/impatience-test
+        stack build --copy-bins --local-bin-path ./bin
         stack build hlint weeder
+        stack exec hlint -- .
         strip ./bin/impatience-exe
         ldd ./bin/impatience-exe
-      displayName: Build All
+      displayName: Build Non-Tests
+    - publish: bin/impatience-exe
+      artifact: exe
     - script: |
         export PATH=$HOME/.local/bin:$PATH
-        stack exec hlint -- .
-        stack exec weeder -- . --build
-        stack test --coverage
-      displayName: Execute Tests
+        stack exec weeder -- . --build # weeder here because it builds tests
+        stack build --test --no-run-tests --coverage
+        cp $(stack path --dist-dir)/build/impatience-test/impatience-test ./bin/impatience-test
+      displayName: Build Tests
+    - publish: bin/impatience-test
+      artifact: test-exe
+    - script: |
+        mkdir -p .stack-root-cache
+        tar -cf .stack-root-cache/stack-root.tar.gz $STACK_ROOT
+      displayName: Build stack root cache
+      condition: eq(variables.ROOT_CACHE_HIT, 'false')
+    - script: |
+        mkdir -p .stack-work-cache
+        tar -cf .stack-work-cache/stack-work.tar.gz .stack-work
+      displayName: Build stack work cache
+      condition: eq(variables.WORK_CACHE_HIT, 'false')
+    - publish: deploycfg
+      artifact: manifests
+- stage: Test
+  displayName: Test
+  dependsOn: Build
+  jobs:
+  - job: Test
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - download: current
+      artifact: test-exe
+    - script: |
+        export PATH=$HOME/.local/bin:$PATH
+        cp $(Pipeline.Workspace)/test-exe/impatience-test .
+        chmod 777 ./impatience-test
+        ./impatience-test
+#       hpc report impatience-test.tix
+      displayName: Execute Tests (w/coverage)
+  - job: ImageTest
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - download: current
+      artifact: test-exe
+    - download: current
+      artifact: exe
     - script: |
         cp Dockerfile Dockerfile.test
-        echo "COPY ./bin/impatience-test /app/impatience-test" >> Dockerfile.test
+        mkdir -p bin
+        cp $(Pipeline.Workspace)/test-exe/impatience-test bin/impatience-test
+        cp $(Pipeline.Workspace)/exe/impatience-exe bin/impatience-exe
+        chmod -R 777 ./bin
+        echo "COPY bin/impatience-test /app/impatience-test" >> Dockerfile.test
+        echo "ENV TASTY_ANSI_TRICKS=false" >> Dockerfile.test
+        echo "ENV TASTY_HIDE_SUCCESSES=true" >> Dockerfile.test
         docker build -t "test-image" -f Dockerfile.test .
         docker run test-image impatience-test
       displayName: Execute Tests In Image
+- stage: Push
+  displayName: Push images
+  dependsOn: Build
+  jobs:
+  - job: Push
+    displayName: Push image to registry
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - download: current
+      artifact: exe
+    - script: |
+        mkdir -p bin
+        cp $(Pipeline.Workspace)/exe/impatience-exe bin/impatience-exe
     - task: Docker@2
+      displayName: Build and Push Image
       inputs:
         containerRegistry: 'impatienceregistry'
         repository: 'impatience'
         command: 'buildAndPush'
         Dockerfile: '**/Dockerfile'
         tags: $(tag)
-      condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
-      displayName: Build and Push Image
-    - script: |
-        mkdir -p .azure-cache
-        tar -cf .azure-cache/stack-root.tar.gz $STACK_ROOT
-        tar -cf .azure-cache/stack-work.tar.gz .stack-work
-      condition: eq(variables.CACHE_DOWNLOADED, 'false')
-      displayName: Build Cache
-    - upload: deploycfg
-      artifact: manifests
 - stage: Deploy
   displayName: Deploy to k8s
-  dependsOn: Build
+  dependsOn:
+  - Test
+  - Push
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   jobs:
   - deployment: Deploy
