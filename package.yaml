@@ -24,8 +24,10 @@ library:
     - -Wredundant-constraints
   dependencies:
     - aeson
+    - blaze-html
     - containers
     - lens
+    - servant-blaze
     - servant-server
     - servant-swagger
     - swagger2
@@ -62,6 +64,7 @@ tests:
     dependencies:
       - impatience
       - aeson
+      - blaze-html
       - generic-random
       - hedgehog
       - QuickCheck
