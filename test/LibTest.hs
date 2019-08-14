@@ -2,8 +2,10 @@
 module LibTest where
 
 import           Lib
+import           Text.Blaze.Html.Renderer.String
 import           Control.Monad
 import           Data.Aeson
+import           Data.List
 import           Data.Proxy
 import           Generic.Random
 import           Hedgehog
@@ -11,7 +13,7 @@ import qualified Hedgehog.Gen                  as Gen
 import qualified Hedgehog.Range                as Range
 import qualified Test.QuickCheck               as QC
 import           Test.Tasty.Hspec
-import           Test.Tasty.HUnit               ( (@=?) )
+import           Test.Tasty.HUnit               ( (@?) )
 import           Servant
 import           Servant.Swagger.Test
 
@@ -37,7 +39,11 @@ hprop_progressToFromJsonIsIdentity = property $ do
   prog <- forAll genProgress
   Just prog === (decode . encode) prog
 
-unit_annie = annie @=? "https://youtu.be/h_D3VFfhvs4"
+unit_annie =
+  (isInfixOf "https://www.youtube.com/embed/h_D3VFfhvs4" html)
+    @? html
+    ++ " doesn't contain the Smooth Criminal link"
+  where html = renderHtml annie
 
 instance QC.Arbitrary Progress where
   arbitrary = genericArbitraryU
