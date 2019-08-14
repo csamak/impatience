@@ -57,7 +57,6 @@ stages:
         curl -sSL https://github.com/upx/upx/releases/download/v3.95/upx-3.95-amd64_linux.tar.xz -o upx.tar.xz
         tar -xf upx.tar.xz
         ./upx-3.95-amd64_linux/upx --best --ultra-brute bin/impatience-exe
-        strip ./bin/impatience-exe
       displayName: Build Non-Tests
     - publish: bin/impatience-exe
       artifact: exe
