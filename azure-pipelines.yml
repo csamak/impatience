@@ -14,7 +14,7 @@ stages:
       displayName: Download stack root cache
       inputs:
         key: |
-          stack-root-cache
+          stack-root
           $(Agent.OS)
           $(Build.SourcesDirectory)/stack.yaml
         path: '.stack-root-cache'
@@ -28,7 +28,7 @@ stages:
       displayName: Download stack work cache
       inputs:
         key: |
-          stack-work-cache
+          stack-work
           $(Agent.OS)
           $(Build.SourcesDirectory)/stack.yaml
           $(Build.SourcesDirectory)/package.yaml
@@ -49,12 +49,12 @@ stages:
         export PATH=$HOME/.local/bin:$PATH
         stack setup
       displayName: Install GHC
+    # no weeder because it builds tests
     - script: |
         export PATH=$HOME/.local/bin:$PATH
         mkdir -p bin/lib
         stack build --copy-bins --local-bin-path ./bin
-        stack build hlint weeder
-        stack exec hlint -- .
+        curl -sSL https://raw.github.com/ndmitchell/hlint/master/misc/run.sh | sh -s src
         strip ./bin/impatience-exe
         ldd ./bin/impatience-exe
       displayName: Build Non-Tests
@@ -62,7 +62,8 @@ stages:
       artifact: exe
     - script: |
         export PATH=$HOME/.local/bin:$PATH
-        stack exec weeder -- . --build # weeder here because it builds tests
+        curl -sSL https://raw.github.com/ndmitchell/hlint/master/misc/run.sh | sh -s .
+        curl -sSL https://raw.github.com/ndmitchell/weeder/master/misc/run.sh | sh -s . --build
         stack build --test --no-run-tests --coverage
         cp $(stack path --dist-dir)/build/impatience-test/impatience-test ./bin/impatience-test
       displayName: Build Tests
