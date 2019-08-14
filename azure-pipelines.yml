@@ -17,6 +17,7 @@ stages:
           stack-root
           $(Agent.OS)
           $(Build.SourcesDirectory)/stack.yaml
+          $(Build.SourcesDirectory)/package.yaml
         path: '.stack-root-cache'
         cacheHitVar: 'ROOT_CACHE_HIT'
     - script: |
@@ -54,9 +55,6 @@ stages:
         mkdir -p bin
         curl -sSL https://raw.github.com/ndmitchell/hlint/master/misc/run.sh | sh -s src
         stack build --copy-bins --local-bin-path ./bin
-        curl -sSL https://github.com/upx/upx/releases/download/v3.95/upx-3.95-amd64_linux.tar.xz -o upx.tar.xz
-        tar -xf upx.tar.xz
-        ./upx-3.95-amd64_linux/upx --best --ultra-brute bin/impatience-exe
       displayName: Build Non-Tests
     - publish: bin/impatience-exe
       artifact: exe
@@ -132,6 +130,9 @@ stages:
       artifact: exe
     - script: |
         mkdir -p bin
+        curl -sSL https://github.com/upx/upx/releases/download/v3.95/upx-3.95-amd64_linux.tar.xz -o upx.tar.xz
+        tar -xf upx.tar.xz
+        ./upx-3.95-amd64_linux/upx --best --ultra-brute bin/impatience-exe
         cp $(Pipeline.Workspace)/exe/impatience-exe bin/impatience-exe
         chmod -R 777 ./bin
     - task: Docker@2
