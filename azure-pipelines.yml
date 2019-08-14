@@ -52,11 +52,10 @@ stages:
     # no weeder because it builds tests
     - script: |
         export PATH=$HOME/.local/bin:$PATH
-        mkdir -p bin/lib
-        stack build --copy-bins --local-bin-path ./bin
+        mkdir -p bin
         curl -sSL https://raw.github.com/ndmitchell/hlint/master/misc/run.sh | sh -s src
+        stack build --copy-bins --local-bin-path ./bin
         strip ./bin/impatience-exe
-        ldd ./bin/impatience-exe
       displayName: Build Non-Tests
     - publish: bin/impatience-exe
       artifact: exe
