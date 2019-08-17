@@ -93,13 +93,14 @@ stages:
         export PATH=$HOME/.local/bin:$PATH
         cp $(Pipeline.Workspace)/test-exe/impatience-test .
         chmod 777 ./impatience-test
-        ./impatience-test --xml=test-results.xml
+        ./impatience-test --xml=tasty-results.xml
 #       hpc report impatience-test.tix
       displayName: Execute Tests (w/coverage)
     - task: PublishTestResults@2
+      displayName: Publish tasty xml results
       inputs:
         testResultsFormat: 'JUnit'
-        testResultsFiles: 'test-results.xml'
+        testResultsFiles: 'tasty-results.xml'
   - job: ImageTest
     pool:
       vmImage: 'ubuntu-latest'
@@ -139,6 +140,7 @@ stages:
         curl -sSL https://github.com/upx/upx/releases/download/v3.95/upx-3.95-amd64_linux.tar.xz -o upx.tar.xz
         tar -xf upx.tar.xz
         ./upx-3.95-amd64_linux/upx --best --ultra-brute bin/impatience-exe
+      displayName: Compress executable
     - task: Docker@2
       displayName: Build and Push Image
       inputs:
