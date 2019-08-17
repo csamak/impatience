@@ -71,6 +71,7 @@ tests:
       - servant-server
       - servant-swagger
       - tasty
+      - tasty-ant-xml
       - tasty-discover
       - tasty-hedgehog
       - tasty-hspec
