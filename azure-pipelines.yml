@@ -93,9 +93,13 @@ stages:
         export PATH=$HOME/.local/bin:$PATH
         cp $(Pipeline.Workspace)/test-exe/impatience-test .
         chmod 777 ./impatience-test
-        ./impatience-test
+        ./impatience-test --xml=test-results.xml
 #       hpc report impatience-test.tix
       displayName: Execute Tests (w/coverage)
+    - task: PublishTestResults@2
+      inputs:
+        testResultsFormat: 'JUnit'
+        testResultsFiles: 'test-results.xml'
   - job: ImageTest
     pool:
       vmImage: 'ubuntu-latest'
