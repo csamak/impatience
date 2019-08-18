@@ -39,11 +39,10 @@ hprop_progressToFromJsonIsIdentity = property $ do
   prog <- forAll genProgress
   Just prog === (decode . encode) prog
 
-unit_annie =
-  (isInfixOf "https://www.youtube.com/embed/h_D3VFfhvs4" html)
-    @? html
-    ++ " doesn't contain the Smooth Criminal link"
-  where html = renderHtml annie
+unit_annie = videoLink `isInfixOf` html @? html ++ " should remind us that others care about annie"
+ where
+  html      = renderHtml annie
+  videoLink = "https://www.youtube.com/embed/h_D3VFfhvs4"
 
 instance QC.Arbitrary Progress where
   arbitrary = genericArbitraryU

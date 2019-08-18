@@ -87,6 +87,7 @@ stages:
     pool:
       vmImage: 'ubuntu-latest'
     steps:
+    - checkout: none
     - download: current
       artifact: test-exe
     - script: |
