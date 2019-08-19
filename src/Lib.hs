@@ -16,6 +16,7 @@ import           Network.Wai.Logger             ( withStdoutLogger )
 import           Servant
 import           Servant.HTML.Blaze             ( HTML )
 import           Servant.Swagger
+import           Static.Settings
 import           Text.Blaze.Html                ( Html )
 import           Text.Blaze.Html5               ( html
                                                 , iframe
@@ -35,8 +36,9 @@ $(deriveJSON defaultOptions ''Progress)
 
 defaultProgressEntries = fromList $ map (\p -> (jobId p, p)) [Progress 1 5 50, Progress 2 3 10]
 
-type API
-  = "annieareyouok" :> Get '[ HTML] Html :<|> "progress" :> Capture "jobid" Int :> Get '[ JSON] Progress
+type API = "annieareyouok" :> Get '[ HTML] Html
+       :<|> "progress" :> Capture "jobid" Int :> Get '[ JSON] Progress
+       :<|> Raw -- static files
 
 type APIWithSwagger = "swagger.json" :> Get '[JSON] Swagger :<|> API
 
@@ -52,7 +54,7 @@ api :: Proxy APIWithSwagger
 api = Proxy
 
 server :: Server APIWithSwagger
-server = return swaggerDoc :<|> return annie :<|> progress
+server = return swaggerDoc :<|> return annie :<|> progress :<|> serveDirectoryWith jsSettings
 
 annie =
   html

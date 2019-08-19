@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module LibTest where
+module Test.Lib where
 
 import           Lib
 import           Text.Blaze.Html.Renderer.String

@@ -25,13 +25,19 @@ library:
   dependencies:
     - aeson
     - blaze-html
+    - base64-bytestring
+    - bytestring
     - containers
+    - cryptonite
     - lens
     - servant-blaze
     - servant-server
     - servant-swagger
     - swagger2
+    - text
+    - template-haskell
     - wai
+    - wai-app-static
     - wai-logger
     - warp
 
