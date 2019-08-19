@@ -39,7 +39,7 @@ stages:
         key: npm | $(Agent.OS) | site/bower.json
         path: $(npm_config_cache)
     - script: |
-        npm install -g purescript pulp bower
+        sudo npm install -g purescript pulp bower
         pulp -b site/bower.json browserify --optimise --to ../static/app.js
       displayName: Build static js
     - script: |
@@ -114,7 +114,7 @@ stages:
         key: npm | $(Agent.OS) | site/bower.json
         path: $(npm_config_cache)
     - script: |
-        npm install -g purescript pulp bower
+        sudo npm install -g purescript pulp bower
         pulp -b site/bower.json test
   - job: ImageTest
     pool:
