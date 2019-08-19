@@ -41,6 +41,7 @@ stages:
         PATH=$HOME/purescript:$PATH
         sudo npm install -g pulp bower
         cd site
+        bower install
         pulp browserify --optimise --to ../static/app.js
         cd ..
       displayName: Build static js
@@ -118,6 +119,7 @@ stages:
         PATH=$HOME/purescript:$PATH
         sudo npm install -g pulp bower
         cd site
+        bower install
         pulp test
   - job: ImageTest
     pool:
