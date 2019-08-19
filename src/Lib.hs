@@ -19,15 +19,28 @@ import           Servant.Swagger
 import           Static.Settings
 import           Text.Blaze.Html                ( Html )
 import           Text.Blaze.Html5               ( html
+                                                , body
                                                 , iframe
                                                 , (!)
+                                                , script
+                                                )
+import qualified Text.Blaze.Html5              as H
+                                                ( head
+                                                , title
                                                 )
 import           Text.Blaze.Html5.Attributes
 import           Control.Lens
 import           Data.Map                       ( fromList
                                                 , (!?)
                                                 )
-import           Data.Swagger
+import           Data.Swagger                   ( Swagger
+                                                , ToSchema
+                                                , URL (..)
+                                                , declareNamedSchema
+                                                , info
+                                                , license
+                                                , url
+                                                )
 import           GHC.Generics                   ( Generic )
 data Progress = Progress { jobId, completed, total :: Int } deriving (Eq, Show, Generic)
 
@@ -38,7 +51,9 @@ defaultProgressEntries = fromList $ map (\p -> (jobId p, p)) [Progress 1 5 50, P
 
 type API = "annieareyouok" :> Get '[ HTML] Html
        :<|> "progress" :> Capture "jobid" Int :> Get '[ JSON] Progress
-       :<|> Raw -- static files
+       :<|> "static" :> Raw
+       :<|> "index.html" :> Get '[ HTML] Html
+       :<|> Get '[ HTML] Html
 
 type APIWithSwagger = "swagger.json" :> Get '[JSON] Swagger :<|> API
 
@@ -54,7 +69,13 @@ api :: Proxy APIWithSwagger
 api = Proxy
 
 server :: Server APIWithSwagger
-server = return swaggerDoc :<|> return annie :<|> progress :<|> serveDirectoryWith jsSettings
+server =
+  return swaggerDoc
+    :<|> return annie
+    :<|> progress
+    :<|> serveDirectoryWith jsSettings
+    :<|> return home
+    :<|> return home
 
 annie =
   html
@@ -63,6 +84,11 @@ annie =
     ! height "315"
     ! src "https://www.youtube.com/embed/h_D3VFfhvs4?autoplay=1&mute=1"
     $ mempty
+
+home = html $ do
+  H.head $ H.title "Sailor Greetings"
+  body "Hello Sailor! (not dynamic)"
+  script ! type_ "text/javascript" ! src "static/impatience.js" $ mempty
 
 progress :: Int -> Handler Progress
 progress p = maybe (throwError err404) return $ defaultProgressEntries !? p

@@ -12,11 +12,11 @@ import           Crypto.Hash                    ( Digest
                                                 , MD5(..)
                                                 , hashlazy
                                                 )
+import qualified Data.ByteString.Lazy          as BL
+                                                ( readFile )
 import           Data.Text                      ( pack )
 import           Language.Haskell.TH.Lib        ( ExpQ )
 import           Language.Haskell.TH.Syntax     ( qAddDependentFile )
-import qualified Data.ByteString.Lazy          as BL
-                                                ( readFile )
 
 settings :: [(FilePath, IO EmbeddableEntry)] -> ExpQ
 settings entries = do
