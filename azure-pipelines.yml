@@ -39,7 +39,11 @@ stages:
         key: npm | $(Agent.OS) | site/bower.json
         path: $(npm_config_cache)
     - script: |
-        sudo npm install -g purescript pulp bower
+        TAG=$(wget -q -O - https://github.com/purescript/purescript/releases/latest --server-response --max-redirect 0 2>&1 | sed -n -e 's/.*Location:.*tag\///p')
+        wget -O $HOME/purescript.tar.gz https://github.com/purescript/purescript/releases/download/$TAG/linux64.tar.gz
+        tar -xvf $HOME/purescript.tar.gz -C $HOME/
+        chmod a+x $HOME/purescript
+        sudo npm install -g pulp bower
         pulp -b site/bower.json browserify --optimise --to ../static/app.js
       displayName: Build static js
     - script: |
@@ -114,7 +118,11 @@ stages:
         key: npm | $(Agent.OS) | site/bower.json
         path: $(npm_config_cache)
     - script: |
-        sudo npm install -g purescript pulp bower
+        TAG=$(wget -q -O - https://github.com/purescript/purescript/releases/latest --server-response --max-redirect 0 2>&1 | sed -n -e 's/.*Location:.*tag\///p')
+        wget -O $HOME/purescript.tar.gz https://github.com/purescript/purescript/releases/download/$TAG/linux64.tar.gz
+        tar -xvf $HOME/purescript.tar.gz -C $HOME/
+        chmod a+x $HOME/purescript
+        sudo npm install -g pulp bower
         pulp -b site/bower.json test
   - job: ImageTest
     pool:
