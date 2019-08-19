@@ -1,6 +1,7 @@
 variables:
   STACK_ROOT: /home/vsts/.stack
   tag: '$(Build.BuildId)'
+  npm_config_cache: $(Pipeline.Workspace)/.npm
 
 stages:
 - stage: Build
@@ -13,11 +14,7 @@ stages:
     - task: CacheBeta@0
       displayName: Download stack root cache
       inputs:
-        key: |
-          stack-root
-          $(Agent.OS)
-          $(Build.SourcesDirectory)/stack.yaml
-          $(Build.SourcesDirectory)/package.yaml
+        key: stack-root | $(Agent.OS) | stack.yaml | package.yaml
         path: '.stack-root-cache'
         cacheHitVar: 'ROOT_CACHE_HIT'
     - script: |
@@ -28,11 +25,7 @@ stages:
     - task: CacheBeta@0
       displayName: Download stack work cache
       inputs:
-        key: |
-          stack-work
-          $(Agent.OS)
-          $(Build.SourcesDirectory)/stack.yaml
-          $(Build.SourcesDirectory)/package.yaml
+        key: stack-work | $(Agent.OS) | stack.yaml | package.yaml
         path: '.stack-work-cache'
         cacheHitVar: 'WORK_CACHE_HIT'
     - script: |
@@ -40,6 +33,15 @@ stages:
         tar -xf .stack-work-cache/stack-work.tar.gz
       displayName: Extract stack work cache
       condition: eq(variables.WORK_CACHE_HIT, 'true')
+    - task: CacheBeta@0
+      displayName: Download npm cache
+      inputs:
+        key: npm | $(Agent.OS) | package.json
+        path: $(npm_config_cache)
+    - script: |
+        npm install -g purescript pulp bower
+        pulp -b site/bower.json browserify --optimise --to ../static/app.js
+      displayName: Build static js
     - script: |
         mkdir -p ~/.local/bin
         mkdir -p $STACK_ROOT
@@ -83,7 +85,7 @@ stages:
   displayName: Test
   dependsOn: Build
   jobs:
-  - job: Test
+  - job: ApiTest
     pool:
       vmImage: 'ubuntu-latest'
     steps:
@@ -102,6 +104,18 @@ stages:
       inputs:
         testResultsFormat: 'JUnit'
         testResultsFiles: 'tasty-results.xml'
+  - job: SiteTest
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - task: CacheBeta@0
+      displayName: Download npm cache
+      inputs:
+        key: npm | $(Agent.OS) | package.json
+        path: $(npm_config_cache)
+    - script: |
+        npm install -g purescript pulp bower
+        pulp -b site/bower.json test
   - job: ImageTest
     pool:
       vmImage: 'ubuntu-latest'
