@@ -36,7 +36,7 @@ stages:
     - task: CacheBeta@0
       displayName: Download npm cache
       inputs:
-        key: npm | $(Agent.OS) | package.json
+        key: npm | $(Agent.OS) | site/bower.json
         path: $(npm_config_cache)
     - script: |
         npm install -g purescript pulp bower
@@ -111,7 +111,7 @@ stages:
     - task: CacheBeta@0
       displayName: Download npm cache
       inputs:
-        key: npm | $(Agent.OS) | package.json
+        key: npm | $(Agent.OS) | site/bower.json
         path: $(npm_config_cache)
     - script: |
         npm install -g purescript pulp bower
