@@ -43,6 +43,7 @@ stages:
         wget -O $HOME/purescript.tar.gz https://github.com/purescript/purescript/releases/download/$TAG/linux64.tar.gz
         tar -xvf $HOME/purescript.tar.gz -C $HOME/
         chmod a+x $HOME/purescript
+        PATH=$HOME/purescript:$PATH
         sudo npm install -g pulp bower
         pulp -b site/bower.json browserify --optimise --to ../static/app.js
       displayName: Build static js
@@ -122,6 +123,7 @@ stages:
         wget -O $HOME/purescript.tar.gz https://github.com/purescript/purescript/releases/download/$TAG/linux64.tar.gz
         tar -xvf $HOME/purescript.tar.gz -C $HOME/
         chmod a+x $HOME/purescript
+        PATH=$HOME/purescript:$PATH
         sudo npm install -g pulp bower
         pulp -b site/bower.json test
   - job: ImageTest
