@@ -33,11 +33,6 @@ stages:
         tar -xf .stack-work-cache/stack-work.tar.gz
       displayName: Extract stack work cache
       condition: eq(variables.WORK_CACHE_HIT, 'true')
-    - task: CacheBeta@0
-      displayName: Download npm cache
-      inputs:
-        key: npm | $(Agent.OS) | site/bower.json
-        path: $(npm_config_cache)
     - script: |
         TAG=$(wget -q -O - https://github.com/purescript/purescript/releases/latest --server-response --max-redirect 0 2>&1 | sed -n -e 's/.*Location:.*tag\///p')
         wget -O $HOME/purescript.tar.gz https://github.com/purescript/purescript/releases/download/$TAG/linux64.tar.gz
@@ -45,7 +40,9 @@ stages:
         chmod a+x $HOME/purescript
         PATH=$HOME/purescript:$PATH
         sudo npm install -g pulp bower
-        pulp -b site/bower.json browserify --optimise --to ../static/app.js
+        cd site
+        pulp browserify --optimise --to ../static/app.js
+        cd ..
       displayName: Build static js
     - script: |
         mkdir -p ~/.local/bin
@@ -113,11 +110,6 @@ stages:
     pool:
       vmImage: 'ubuntu-latest'
     steps:
-    - task: CacheBeta@0
-      displayName: Download npm cache
-      inputs:
-        key: npm | $(Agent.OS) | site/bower.json
-        path: $(npm_config_cache)
     - script: |
         TAG=$(wget -q -O - https://github.com/purescript/purescript/releases/latest --server-response --max-redirect 0 2>&1 | sed -n -e 's/.*Location:.*tag\///p')
         wget -O $HOME/purescript.tar.gz https://github.com/purescript/purescript/releases/download/$TAG/linux64.tar.gz
@@ -125,7 +117,8 @@ stages:
         chmod a+x $HOME/purescript
         PATH=$HOME/purescript:$PATH
         sudo npm install -g pulp bower
-        pulp -b site/bower.json test
+        cd site
+        pulp test
   - job: ImageTest
     pool:
       vmImage: 'ubuntu-latest'
