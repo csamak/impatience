@@ -1,3 +1,7 @@
+<<<<<<< HEAD:test/Test/Lib.hs
+=======
+{-# LANGUAGE OverloadedStrings #-}
+>>>>>>> origin/master:test/LibTest.hs
 module Test.Lib where
 
 import           Lib

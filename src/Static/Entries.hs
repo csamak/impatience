@@ -21,7 +21,11 @@ import           Language.Haskell.TH.Syntax     ( qAddDependentFile )
 settings :: [(FilePath, IO EmbeddableEntry)] -> ExpQ
 settings entries = do
     mapM_ (qAddDependentFile . fst) entries
+<<<<<<< HEAD
     mkSettings (mapM snd entries) -- also consider servant-static-th as an alternative
+=======
+    mkSettings (mapM snd entries)
+>>>>>>> origin/master
 
 entry path location mime =
     ( path
