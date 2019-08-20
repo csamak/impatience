@@ -105,6 +105,7 @@ stages:
       displayName: Execute Tests (w/coverage)
     - task: PublishTestResults@2
       displayName: Publish tasty xml results
+      condition: always()
       inputs:
         testResultsFormat: 'JUnit'
         testResultsFiles: 'tasty-results.xml'
