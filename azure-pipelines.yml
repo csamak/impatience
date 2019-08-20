@@ -103,6 +103,9 @@ stages:
         ./impatience-test --xml=tasty-results.xml
 #       hpc report impatience-test.tix
       displayName: Execute Tests (w/coverage)
+    - publish: tasty-results.xml
+      artifact: api-test-results.xml
+      condition: always()
     - task: PublishTestResults@2
       displayName: Publish tasty xml results
       condition: always()
