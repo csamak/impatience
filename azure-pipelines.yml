@@ -102,10 +102,18 @@ stages:
         chmod 777 ./impatience-test
         ./impatience-test --xml=tasty-results.xml
 #       hpc report impatience-test.tix
-      displayName: Execute Tests (w/coverage)
+      displayName: Execute Tests # (w/coverage)
+    - script: |
+        export PATH=$HOME/.local/bin:$PATH
+        cp $(Pipeline.Workspace)/test-exe/impatience-test .
+        chmod 777 ./impatience-test
+        ./impatience-test
+      # run for extra output if the xml one fails.
+      condition: failed()
+      displayName: Execute Tests without XML
     - publish: tasty-results.xml
-      artifact: api-test-results.xml
-      condition: always()
+      artifact: api-test-xml
+      condition: succeededOrFailed()
     - task: PublishTestResults@2
       displayName: Publish tasty xml results
       condition: always()
