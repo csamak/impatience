@@ -71,8 +71,10 @@ tests:
       - impatience
       - aeson
       - blaze-html
+      - bytestring
       - generic-random
       - hedgehog
+      - language-javascript
       - QuickCheck
       - servant-server
       - servant-swagger
@@ -82,3 +84,7 @@ tests:
       - tasty-hedgehog
       - tasty-hspec
       - tasty-hunit
+      - text
+      - wai-app-static
+      - wai-extra
+      - zlib
