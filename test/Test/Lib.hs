@@ -1,4 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
 module Test.Lib where
 
 import           Lib
@@ -37,7 +36,7 @@ hprop_knownProgressIsProgress = property $ do
 
 hprop_progressToFromJsonIsIdentity = property $ do
   prog <- forAll genProgress
-  Just prog === (decode . encode) prog
+  tripping prog encode decode
 
 unit_annie = videoLink `isInfixOf` html @? html ++ " should remind us that others care about annie"
  where

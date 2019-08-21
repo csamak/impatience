@@ -102,9 +102,10 @@ stages:
         chmod 777 ./impatience-test
         ./impatience-test --xml=tasty-results.xml
 #       hpc report impatience-test.tix
-      displayName: Execute Tests (w/coverage)
+      displayName: Execute Tests # (w/coverage)
     - task: PublishTestResults@2
       displayName: Publish tasty xml results
+      condition: always()
       inputs:
         testResultsFormat: 'JUnit'
         testResultsFiles: 'tasty-results.xml'
