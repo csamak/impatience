@@ -1,0 +1,12 @@
+{
+  "name": "impatience-site",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start": "concurrently \"spago build --watch\" \"parcel index.html\""
+  },
+  "devDependencies": {
+    "concurrently": "^4.1.2",
+    "parcel-bundler": "^1.12.3"
+  }
+}

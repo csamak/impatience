@@ -39,11 +39,10 @@ stages:
         tar -xvf $HOME/purescript.tar.gz -C $HOME/
         chmod a+x $HOME/purescript
         PATH=$HOME/purescript:$PATH
-        sudo npm install -g pulp bower
+        sudo npm install -g --unsafe-perm spago
         cd site
         sudo chown -R $USER:$GROUP ~/.config
-        bower install
-        pulp browserify --optimise --to ../static/app.js
+        spago bundle-module --to ../static/app.js
         cd ..
       displayName: Build static js
     - script: |
@@ -119,11 +118,10 @@ stages:
         tar -xvf $HOME/purescript.tar.gz -C $HOME/
         chmod a+x $HOME/purescript
         PATH=$HOME/purescript:$PATH
-        sudo npm install -g pulp bower
+        sudo npm install -g --unsafe-perm spago
         cd site
         sudo chown -R $USER:$GROUP ~/.config
-        bower install
-        pulp test
+        spago test
   - job: ImageTest
     pool:
       vmImage: 'ubuntu-latest'
