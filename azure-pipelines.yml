@@ -39,11 +39,12 @@ stages:
         tar -xvf $HOME/purescript.tar.gz -C $HOME/
         chmod a+x $HOME/purescript
         PATH=$HOME/purescript:$PATH
-        sudo npm install -g --unsafe-perm spago
+        sudo npm install -g --unsafe-perm spago terser
         cd site
         sudo chown -R $USER:$GROUP ~/.config
-        spago bundle-module --to ../static/app.js
+        spago bundle-app --to ../static/app.js
         cd ..
+        terser static/app.js --compress --mangle -o static/app.js
       displayName: Build static js
     - script: |
         mkdir -p ~/.local/bin
