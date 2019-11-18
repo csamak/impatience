@@ -1,6 +1,5 @@
 {
     "recommendations": [
-        "alanz.vscode-hie-server",
         "ms-azure-devops.azure-pipelines",
         "redhat.vscode-yaml"
     ]

@@ -1,0 +1,8 @@
+{
+    "appPort": 1234,
+    "image": "haskell.azurecr.io/ghcide:v1",
+    "extensions": [
+        "DigitalAssetHoldingsLLC.ghcide",
+        "redhat.vscode-yaml"
+    ]
+}
