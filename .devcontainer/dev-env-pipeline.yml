@@ -1,5 +1,13 @@
 trigger:
-- master
+  batch: true
+  branches:
+    include:
+    - master
+  paths:
+    include:
+    - stack.yaml
+    - package.yaml
+    - .devcontainer/Dockerfile
 pr: none
 
 resources:

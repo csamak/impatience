@@ -1,7 +1,7 @@
 FROM haskell:8.8.1 AS stack-root
 COPY . /src
 WORKDIR /src
-RUN stack build --only-dependencies
+RUN stack test --only-dependencies
 
 FROM haskell:8.8.1
 RUN mkdir -p $HOME/.local/bin
