@@ -4,7 +4,8 @@ RUN mkdir -p $HOME/.local/bin
 ENV PATH="${HOME}/.local/bin:${PATH}"
 
 # populate the cache
-RUN stack build --only-dependencies
+RUN ls
+RUN stack build --only-dependencies --stack-yaml stack.yaml
 
 RUN git clone https://github.com/digital-asset/ghcide.git \
     && cd ghcide \
