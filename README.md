@@ -12,7 +12,14 @@ For fast builds from scratch, the image includes project dependencies (from `mas
 
 For a non-containerized alternative, follow guides for installing stack and spago.
 
+### Multi-root Workspace
+
+`impatience.code-workspace` defines a multi-root workspace which simplifies tooling.  
+For now subdirectories do not have thier own `.devcontainer`.
+
 ### Basic commands:
+
+Assuming the working directory is the repo root:
 
 ```shell
 # Everything set up OK?

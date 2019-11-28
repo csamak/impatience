@@ -1,0 +1,6 @@
+{
+    "files.exclude": {
+        // Separate workspace roots
+        "site/": true,
+    }
+}
