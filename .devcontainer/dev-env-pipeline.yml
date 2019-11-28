@@ -23,6 +23,7 @@ stages:
       displayName: Build and push an image to container registry
       inputs:
         command: buildAndPush
+        buildContext: '$(Build.SourcesDirectory)'
         repository: 'impatiencedevenv'
         dockerfile: '$(Build.SourcesDirectory)/.devcontainer/Dockerfile'
         containerRegistry: $(dockerRegistryServiceConnection)
