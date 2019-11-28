@@ -1,7 +1,7 @@
 {
     "name": "ghcide",
     "appPort": 1234,
-    "image": "haskell.azurecr.io/ghcide:v1",
+    "image": "haskell.azurecr.io/ghcide:master",
     "extensions": [
         "DigitalAssetHoldingsLLC.ghcide",
         "justusadam.language-haskell",

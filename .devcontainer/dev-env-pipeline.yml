@@ -1,0 +1,31 @@
+trigger:
+- master
+
+resources:
+- repo: self
+
+variables:
+  dockerRegistryServiceConnection: 'ddf43e4c-0fd8-43a6-b1c7-0ca9a0d9e8b1'
+  imageRepository: 'impatiencedevenv'
+  containerRegistry: 'haskell.azurecr.io'
+  tag: '$(Build.BuildId)'
+
+stages:
+- stage: Build
+  displayName: Build and push stage
+  jobs:  
+  - job: Build
+    displayName: Build
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - task: Docker@2
+      displayName: Build and push an image to container registry
+      inputs:
+        command: buildAndPush
+        repository: 'impatiencedevenv'
+        dockerfile: '$(Build.SourcesDirectory)/.devcontainer/Dockerfile'
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: |
+          $(tag)
+          master
