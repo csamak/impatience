@@ -1,5 +1,6 @@
 trigger:
 - master
+pr: none
 
 resources:
 - repo: self
@@ -29,4 +30,4 @@ stages:
         containerRegistry: $(dockerRegistryServiceConnection)
         tags: |
           $(tag)
-          master
+          $(Build.SourceBranchName)
