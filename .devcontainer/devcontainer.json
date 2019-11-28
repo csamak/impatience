@@ -6,6 +6,7 @@
         "DigitalAssetHoldingsLLC.ghcide",
         "justusadam.language-haskell",
         "ms-azure-devops.azure-pipelines",
+        "nwolverson.ide-purescript",
         "redhat.vscode-yaml"
     ]
 }
