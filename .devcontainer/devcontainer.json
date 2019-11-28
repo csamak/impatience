@@ -1,7 +1,7 @@
 {
-    "name": "ghcide",
+    "name": "impatience",
     "appPort": 1234,
-    "image": "haskell.azurecr.io/ghcide:master",
+    "image": "haskell.azurecr.io/impatiencedevenv:master",
     "extensions": [
         "DigitalAssetHoldingsLLC.ghcide",
         "justusadam.language-haskell",
