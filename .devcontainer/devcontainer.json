@@ -5,6 +5,7 @@
     "extensions": [
         "DigitalAssetHoldingsLLC.ghcide",
         "justusadam.language-haskell",
+        "ms-azure-devops.azure-pipelines",
         "redhat.vscode-yaml"
     ]
 }
