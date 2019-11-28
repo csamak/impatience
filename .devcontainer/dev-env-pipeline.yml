@@ -36,6 +36,7 @@ stages:
         repository: 'impatiencedevenv'
         dockerfile: '$(Build.SourcesDirectory)/.devcontainer/Dockerfile'
         containerRegistry: $(dockerRegistryServiceConnection)
+        # Consider removing the tag when retention policies are out of preview
         tags: |
           $(tag)
           $(Build.SourceBranchName)
