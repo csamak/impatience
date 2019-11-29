@@ -1,4 +1,13 @@
-resolver: nightly-2019-11-17
+resolver: nightly-2019-11-29
 
-packages:
-  - .
+extra-deps:
+  - dependent-map-0.3@sha256:dc745864d5116bbd59ad29100faec74c79e681d35808547023619544c0e9f9b7,1574
+  - dependent-sum-0.6.2.0@sha256:bff37c85b38e768b942f9d81c2465b63a96076f1ba006e35612aa357770807b6,1856
+  - haskell-src-exts-1.21.1@sha256:11d18ec3f463185f81b7819376b532e3087f8192cffc629aac5c9eec88897b35,4541
+  - constraints-extras-0.3.0.2@sha256:bf6884be65958e9188ae3c9e5547abfd6d201df021bff8a4704c2c4fe1e1ae5b,1784
+  - github: tathougies/beam
+    commit: 8aed273fdfd82e6e890f518a3e993e3d1f5b29f1
+    subdirs:
+      - beam-core
+      - beam-migrate
+      - beam-postgres

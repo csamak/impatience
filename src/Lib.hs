@@ -1,15 +1,18 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeOperators #-}
 
 module Lib where
 
+import Database.Beam.Postgres
+import Database.Beam.Query
+import Database.Schema
+import Database.Db
+import Control.Monad.IO.Class
+
 import           Data.Aeson
-import           Data.Aeson.TH
 import           Network.Wai
 import           Network.Wai.Handler.Warp
 import           Network.Wai.Logger             ( withStdoutLogger )
@@ -30,9 +33,6 @@ import qualified Text.Blaze.Html5              as H
                                                 )
 import           Text.Blaze.Html5.Attributes
 import           Control.Lens
-import           Data.Map                       ( fromList
-                                                , (!?)
-                                                )
 import           Data.Swagger                   ( Swagger
                                                 , ToSchema
                                                 , URL (..)
@@ -41,41 +41,49 @@ import           Data.Swagger                   ( Swagger
                                                 , license
                                                 , url
                                                 )
-import           GHC.Generics                   ( Generic )
-data Progress = Progress { jobId, completed, total :: Int } deriving (Eq, Show, Generic)
 
 instance ToSchema Progress
-$(deriveJSON defaultOptions ''Progress)
-
-defaultProgressEntries = fromList $ map (\p -> (jobId p, p)) [Progress 1 5 50, Progress 2 3 10]
+instance ToJSON Progress
+instance FromJSON Progress
 
 type API = "annieareyouok" :> Get '[ HTML] Html
-       :<|> "progress" :> Capture "jobid" Int :> Get '[ JSON] Progress
+       :<|> "progress" :> Capture "id" Int :> Get '[ JSON] Progress
        :<|> "static" :> Raw
        :<|> "index.html" :> Get '[ HTML] Html
        :<|> Get '[ HTML] Html
 
 type APIWithSwagger = "swagger.json" :> Get '[JSON] Swagger :<|> API
 
+-- move to config file. allow multiple backends (sqlite) 
+connectInfo :: ConnectInfo
+connectInfo = ConnectInfo {
+    connectHost = "dataspot.postgres.database.azure.com"
+  , connectPort = 5432
+  , connectUser = "impatiencedev@dataspot"
+  , connectPassword = "PASSWORDGOESHERE"
+  , connectDatabase = "impatiencedev"
+  }
+
 startApp :: IO ()
 startApp = withStdoutLogger $ \logger -> do
   let settings = setPort 1234 $ setLogger logger defaultSettings
-  runSettings settings app
+  conn <- connect connectInfo
+  runSettings settings $ app conn
 
-app :: Application
-app = serve api server
+app :: Connection -> Application
+app conn = serve api $ server conn
 
 api :: Proxy APIWithSwagger
 api = Proxy
 
-server :: Server APIWithSwagger
-server =
+server :: Connection -> Server APIWithSwagger
+server conn =
   return swaggerDoc
-    :<|> return annie
-    :<|> progress
+    :<|> pure annie
+    :<|> progress conn
     :<|> serveDirectoryWith jsSettings
-    :<|> return home
-    :<|> return home
+    :<|> pure home
+    :<|> pure home
 
 annie =
   html
@@ -90,8 +98,11 @@ home = html $ do
   body "Hello Sailor! (not dynamic)"
   script ! type_ "text/javascript" ! src "static/impatience.js" $ mempty
 
-progress :: Int -> Handler Progress
-progress p = maybe (throwError err404) return $ defaultProgressEntries !? p
+progress :: Connection -> Int -> Handler Progress
+progress conn i = do
+  found <- liftIO $ runBeamPostgresDebug putStrLn conn $
+    runSelectReturningOne $ select $ filter_ (\p -> _progressId p ==. val_ i) (all_ (_progresses impatienceDb))
+  maybe (throwError err404) pure found
 
 instance ToSchema Html where
   declareNamedSchema _ = declareNamedSchema (Proxy :: Proxy String)

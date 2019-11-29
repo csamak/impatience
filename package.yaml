@@ -24,6 +24,9 @@ library:
     - -Wredundant-constraints
   dependencies:
     - aeson
+    - beam-core
+    - beam-migrate
+    - beam-postgres
     - blaze-html
     - base64-bytestring
     - bytestring
@@ -36,6 +39,7 @@ library:
     - swagger2
     - text
     - template-haskell
+    - transformers
     - wai
     - wai-app-static
     - wai-logger

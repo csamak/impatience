@@ -10,8 +10,10 @@ COPY --from=stack-root /root/.stack /root/.stack
 RUN git clone https://github.com/digital-asset/ghcide.git \
     && cd ghcide \
     && stack install --stack-yaml stack88.yaml
+RUN stack install hlint brittany weeder
 RUN curl -sL https://deb.nodesource.com/setup_13.x | bash - \
-    && apt-get install -y nodejs \
-    && npm install -g --unsafe-perm purescript spago
+    && apt install -y nodejs \
+    && npm install -g --unsafe-perm purescript spago concurrently parcel
+RUN apt install -y libpq-dev
 
 ENV SHELL /bin/bash
