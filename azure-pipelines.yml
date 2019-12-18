@@ -57,15 +57,14 @@ stages:
         stack setup
       displayName: Install GHC
     - script: |
-        sudo apt install -y libpq-dev
+        sudo apt-get install -y libpq-dev
         export PATH=$HOME/.local/bin:$PATH
         mkdir -p bin
         mkdir -p bin/lib
         curl -sSL https://raw.github.com/ndmitchell/hlint/master/misc/run.sh | sh -s src
         stack build --copy-bins --local-bin-path ./bin
         ldd ./bin/impatience-exe
-        cp /usr/lib/x86_64-linux-gnu/{libpq.so.5,libssl.so.1.1,libcrypto.so.1.1,libgssapi_krb5.so.2,libldap_r-2.4.so.2,libkrb5.so.3,libk5crypto.so.3,libkrb5support.so.0,liblber-2.4.so.2,libsasl2.so.2,libgnutls.so.30,libp11-kit.so.0,libtasn1.so.6,libnettle.so.6,libhogweed.so.4,libffi.so.6} bin/lib
-        cp /lib/x86_64-linux-gnu/{libidn.so.11,libkeyutils.so.1,libcom_err.so.2} bin/lib
+        ldd /bin/bash | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -v '{}' bin/lib
       displayName: Build Non-Tests
     - publish: bin/impatience-exe
       artifact: exe
