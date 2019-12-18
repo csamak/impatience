@@ -10,9 +10,9 @@ RUN apt-get update && apt install -y wget lsb-release \
 
 FROM haskell:8.8.1
 COPY --from=stack-root /root/.stack /root/.stack
-RUN git clone https://github.com/digital-asset/ghcide.git \
+RUN mkdir -p $HOME/.local/bin \
+    && git clone https://github.com/digital-asset/ghcide.git \
     && cd ghcide \
-    $$ mkdir -p $HOME/.local/bin \
     && stack install --stack-yaml stack88.yaml \
     && stack install hlint brittany weeder
 RUN curl -sL https://deb.nodesource.com/setup_13.x | bash - \

@@ -57,6 +57,7 @@ stages:
         stack setup
       displayName: Install GHC
     - script: |
+        sudo apt install -y libpq-dev
         export PATH=$HOME/.local/bin:$PATH
         mkdir -p bin
         curl -sSL https://raw.github.com/ndmitchell/hlint/master/misc/run.sh | sh -s src
