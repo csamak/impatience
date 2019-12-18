@@ -8,7 +8,7 @@ import           Text.Blaze.Html.Renderer.String
 import           Data.Aeson
 import           Data.List
 import           Data.Proxy
-import Database.Schema
+import           Database.Types
 import           Generic.Random
 import           Hedgehog
 import qualified Hedgehog.Gen                  as Gen
@@ -25,7 +25,7 @@ spec_json = context "ToJSON matches ToSchema" $ validateEveryToJSON (Proxy :: Pr
 
 genProgress :: Gen Progress
 genProgress = Progress <$> integerGen <*> integerGen <*> integerGen
-  where integerGen = Gen.int Range.linearBounded
+  where integerGen = Gen.int32 Range.linearBounded
 
 -- hprop_unknownProgresIs404 = property $ do
 --   num    <- forAll $ Gen.int (Range.linear 3 2000)

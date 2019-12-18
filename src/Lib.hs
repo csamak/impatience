@@ -6,13 +6,17 @@
 
 module Lib where
 
-import Database.Beam.Postgres
-import Database.Beam.Query
-import Database.Schema
-import Database.Db
-import Control.Monad.IO.Class
 
+import           Control.Monad.IO.Class
 import           Data.Aeson
+import           Data.Either.Combinators
+import           Data.Int
+import           Database.Types
+import           Database.Session
+import qualified Hasql.Connection              as Connection
+import           Hasql.Connection               ( Connection )
+import qualified Hasql.Session                 as Session
+                                                ( run )
 import           Network.Wai
 import           Network.Wai.Handler.Warp
 import           Network.Wai.Logger             ( withStdoutLogger )
@@ -35,7 +39,7 @@ import           Text.Blaze.Html5.Attributes
 import           Control.Lens
 import           Data.Swagger                   ( Swagger
                                                 , ToSchema
-                                                , URL (..)
+                                                , URL(..)
                                                 , declareNamedSchema
                                                 , info
                                                 , license
@@ -46,28 +50,22 @@ instance ToSchema Progress
 instance ToJSON Progress
 instance FromJSON Progress
 
+-- see https://github.com/lspitzner/brittany/issues/271
+-- brittany-disable-next-binding
 type API = "annieareyouok" :> Get '[ HTML] Html
-       :<|> "progress" :> Capture "id" Int :> Get '[ JSON] Progress
+       :<|> "progress" :> Capture "id" Int32 :> Get '[ JSON] Progress
        :<|> "static" :> Raw
        :<|> "index.html" :> Get '[ HTML] Html
        :<|> Get '[ HTML] Html
 
 type APIWithSwagger = "swagger.json" :> Get '[JSON] Swagger :<|> API
 
--- move to config file. allow multiple backends (sqlite) 
-connectInfo :: ConnectInfo
-connectInfo = ConnectInfo {
-    connectHost = "db"
-  , connectPort = 5432
-  , connectUser = "postgres"
-  , connectPassword = "localpass"
-  , connectDatabase = "impatience"
-  }
-
 startApp :: IO ()
 startApp = withStdoutLogger $ \logger -> do
   let settings = setPort 1234 $ setLogger logger defaultSettings
-  conn <- connect connectInfo
+  -- move to config file. 
+  Right conn <- Connection.acquire
+    $ Connection.settings "db" 5432 "postgres" "localpass" "impatience"
   runSettings settings $ app conn
 
 app :: Connection -> Application
@@ -98,11 +96,11 @@ home = html $ do
   body "Hello Sailor! (not dynamic)"
   script ! type_ "text/javascript" ! src "static/impatience.js" $ mempty
 
-progress :: Connection -> Int -> Handler Progress
+progress :: Connection -> Int32 -> Handler Progress
 progress conn i = do
-  found <- liftIO $ runBeamPostgresDebug putStrLn conn $
-    runSelectReturningOne $ select $ filter_ (\p -> _progressId p ==. val_ i) (all_ (_progresses impatienceDb))
-  maybe (throwError err404) pure found
+  found <- liftIO $ Session.run (progressById i) conn
+  -- handle errors correctly
+  maybe (throwError err404) pure $ fromRight Nothing found
 
 instance ToSchema Html where
   declareNamedSchema _ = declareNamedSchema (Proxy :: Proxy String)
