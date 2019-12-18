@@ -57,11 +57,11 @@ type APIWithSwagger = "swagger.json" :> Get '[JSON] Swagger :<|> API
 -- move to config file. allow multiple backends (sqlite) 
 connectInfo :: ConnectInfo
 connectInfo = ConnectInfo {
-    connectHost = "dataspot.postgres.database.azure.com"
+    connectHost = "db"
   , connectPort = 5432
-  , connectUser = "impatiencedev@dataspot"
-  , connectPassword = "PASSWORDGOESHERE"
-  , connectDatabase = "impatiencedev"
+  , connectUser = "postgres"
+  , connectPassword = "localpass"
+  , connectDatabase = "impatience"
   }
 
 startApp :: IO ()

@@ -1,7 +1,10 @@
 {
     "name": "impatience",
     "appPort": 1234,
-    "image": "haskell.azurecr.io/impatiencedevenv:master",
+    "dockerComposeFile": "docker-compose.yml",
+    "postCreateCommand": "psql \"postgresql://postgres:localpass@db\" -a -f schema/destroy-and-recreate.sql",
+    "service": "dev",
+    "workspaceFolder": "/workspace",
     "extensions": [
         "DigitalAssetHoldingsLLC.ghcide",
         "justusadam.language-haskell",
