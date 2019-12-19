@@ -11,8 +11,10 @@ import           Control.Monad.IO.Class
 import           Data.Aeson
 import           Data.Either.Combinators
 import           Data.Int
+import           Data.Text.Encoding             ( encodeUtf8 )
 import           Database.Types
 import           Database.Session
+import           Dhall                          ( input, auto )
 import qualified Hasql.Connection              as Connection
 import           Hasql.Connection               ( Connection )
 import qualified Hasql.Session                 as Session
@@ -63,9 +65,9 @@ type APIWithSwagger = "swagger.json" :> Get '[JSON] Swagger :<|> API
 startApp :: IO ()
 startApp = withStdoutLogger $ \logger -> do
   let settings = setPort 1234 $ setLogger logger defaultSettings
-  -- move to config file. 
-  Right conn <- Connection.acquire
-    $ Connection.settings "db" 5432 "postgres" "localpass" "impatience"
+  connString <- input auto "./impatience.dhall"
+  -- use a connection pool
+  Right conn <- Connection.acquire $ encodeUtf8 connString
   runSettings settings $ app conn
 
 app :: Connection -> Application
@@ -99,7 +101,7 @@ home = html $ do
 progress :: Connection -> Int32 -> Handler Progress
 progress conn i = do
   found <- liftIO $ Session.run (progressById i) conn
-  -- handle errors correctly
+  -- handle query errors correctly
   maybe (throwError err404) pure $ fromRight Nothing found
 
 instance ToSchema Html where
