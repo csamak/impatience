@@ -1,4 +1,4 @@
-resolver: nightly-2019-12-18
+resolver: nightly-2019-12-19
 
 extra-deps:
   - hasql-th-0.3.0.1@sha256:a093794c55f5c0421aee60b0312c58399c8c8fb304ae44525603ad00a20b2b97,4379

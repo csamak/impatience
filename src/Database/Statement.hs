@@ -16,6 +16,6 @@ progressById = dimap
   (fmap (uncurryN Progress))
   [maybeStatement|
         select id :: int4, completed :: int4, total :: int4
-        from "progresses"
+        from progresses
         where id = $1 :: int4
         |]
