@@ -12,8 +12,8 @@ FROM haskell:8.8.1
 COPY --from=stack-root /root/.stack /root/.stack
 RUN mkdir -p $HOME/.local/bin \
     && git clone https://github.com/digital-asset/ghcide.git \
-    && cd ghcide 
-    && stack install --stack-yaml stack88.yaml
+    && cd ghcide \
+    && stack install --stack-yaml stack88.yaml \
     && stack install hlint brittany weeder --stack-yaml stack88.yaml
 RUN curl -sL https://deb.nodesource.com/setup_13.x | bash - \
     && apt-get update && apt install -y nodejs wget lsb-release \
