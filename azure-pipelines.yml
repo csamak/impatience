@@ -66,7 +66,7 @@ stages:
         ldd ./bin/impatience-exe
         ldd ./bin/impatience-exe | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -v '{}' bin/lib
       displayName: Build Non-Tests
-    - publish: bin/impatience-exe
+    - publish: bin/
       artifact: exe
     - script: |
         export PATH=$HOME/.local/bin:$PATH
@@ -139,7 +139,7 @@ stages:
         cp Dockerfile Dockerfile.test
         mkdir -p bin
         cp $(Pipeline.Workspace)/test-exe/impatience-test bin/impatience-test
-        cp $(Pipeline.Workspace)/exe/impatience-exe bin/impatience-exe
+        cp -r $(Pipeline.Workspace)/exe/. bin/
         chmod -R 777 ./bin
         echo "COPY bin/impatience-test /app/impatience-test" >> Dockerfile.test
         echo "ENV TASTY_ANSI_TRICKS=false" >> Dockerfile.test
@@ -161,7 +161,7 @@ stages:
       artifact: exe
     - script: |
         mkdir -p bin
-        cp $(Pipeline.Workspace)/exe/impatience-exe bin/impatience-exe
+        cp -r $(Pipeline.Workspace)/exe/. bin/
         chmod -R 777 ./bin
         curl -sSL https://github.com/upx/upx/releases/download/v3.95/upx-3.95-amd64_linux.tar.xz -o upx.tar.xz
         tar -xf upx.tar.xz
