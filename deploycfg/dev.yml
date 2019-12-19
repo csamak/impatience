@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: impatience
@@ -21,6 +21,12 @@ spec:
         - name: impatience
           image: impatience.azurecr.io/impatience
           imagePullPolicy: Always
+          env:
+          - name: IMPATIENCE_CONN_STRING
+            valueFrom:
+              secretKeyRef:
+                name: impatience-conn
+                key: conn-string
           livenessProbe:
             httpGet:
               path: /annieareyouok

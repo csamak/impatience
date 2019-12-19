@@ -1,12 +1,16 @@
 {
     "name": "impatience",
     "appPort": 1234,
-    "image": "haskell.azurecr.io/impatiencedevenv:master",
+    "dockerComposeFile": "docker-compose.yml",
+    "postCreateCommand": "psql \"postgresql://postgres:localpass@db\" -a -f schema/destroy-and-recreate.sql",
+    "service": "dev",
+    "workspaceFolder": "/workspace",
     "extensions": [
         "DigitalAssetHoldingsLLC.ghcide",
         "justusadam.language-haskell",
         "ms-azure-devops.azure-pipelines",
         "nwolverson.ide-purescript",
-        "redhat.vscode-yaml"
+        "redhat.vscode-yaml",
+        "vscode-language-dhall" // also vscode-dhall-lsp-server once cborg-json 0.2.2.0 is in hackage
     ]
 }

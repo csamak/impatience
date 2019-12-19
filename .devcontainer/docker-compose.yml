@@ -1,0 +1,15 @@
+version: '3'
+services:
+  db:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: localpass
+  dev:
+    image: haskell.azurecr.io/impatiencedevenv:master
+    command: /bin/sh -c "while sleep 1000; do :; done"
+    volumes:
+      - ..:/workspace:cached
+    ports:
+      - "1234:1234"
+    depends_on:
+      - db

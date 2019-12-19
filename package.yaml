@@ -29,13 +29,20 @@ library:
     - bytestring
     - containers
     - cryptonite
+    - dhall
+    - either
+    - hasql
+    - hasql-th
     - lens
+    - profunctors
     - servant-blaze
     - servant-server
     - servant-swagger
     - swagger2
     - text
     - template-haskell
+    - transformers
+    - tuple
     - wai
     - wai-app-static
     - wai-logger

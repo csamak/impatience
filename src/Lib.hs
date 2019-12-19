@@ -1,15 +1,24 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeOperators #-}
 
 module Lib where
 
+
+import           Control.Monad.IO.Class
 import           Data.Aeson
-import           Data.Aeson.TH
+import           Data.Either.Combinators
+import           Data.Int
+import           Data.Text.Encoding             ( encodeUtf8 )
+import           Database.Types
+import           Database.Session
+import           Dhall                          ( input, auto )
+import qualified Hasql.Connection              as Connection
+import           Hasql.Connection               ( Connection )
+import qualified Hasql.Session                 as Session
+                                                ( run )
 import           Network.Wai
 import           Network.Wai.Handler.Warp
 import           Network.Wai.Logger             ( withStdoutLogger )
@@ -30,27 +39,23 @@ import qualified Text.Blaze.Html5              as H
                                                 )
 import           Text.Blaze.Html5.Attributes
 import           Control.Lens
-import           Data.Map                       ( fromList
-                                                , (!?)
-                                                )
 import           Data.Swagger                   ( Swagger
                                                 , ToSchema
-                                                , URL (..)
+                                                , URL(..)
                                                 , declareNamedSchema
                                                 , info
                                                 , license
                                                 , url
                                                 )
-import           GHC.Generics                   ( Generic )
-data Progress = Progress { jobId, completed, total :: Int } deriving (Eq, Show, Generic)
 
 instance ToSchema Progress
-$(deriveJSON defaultOptions ''Progress)
+instance ToJSON Progress
+instance FromJSON Progress
 
-defaultProgressEntries = fromList $ map (\p -> (jobId p, p)) [Progress 1 5 50, Progress 2 3 10]
-
+-- see https://github.com/lspitzner/brittany/issues/271
+-- brittany-disable-next-binding
 type API = "annieareyouok" :> Get '[ HTML] Html
-       :<|> "progress" :> Capture "jobid" Int :> Get '[ JSON] Progress
+       :<|> "progress" :> Capture "id" Int32 :> Get '[ JSON] Progress
        :<|> "static" :> Raw
        :<|> "index.html" :> Get '[ HTML] Html
        :<|> Get '[ HTML] Html
@@ -60,22 +65,25 @@ type APIWithSwagger = "swagger.json" :> Get '[JSON] Swagger :<|> API
 startApp :: IO ()
 startApp = withStdoutLogger $ \logger -> do
   let settings = setPort 1234 $ setLogger logger defaultSettings
-  runSettings settings app
+  connString <- input auto "./impatience.dhall"
+  -- use a connection pool
+  Right conn <- Connection.acquire $ encodeUtf8 connString
+  runSettings settings $ app conn
 
-app :: Application
-app = serve api server
+app :: Connection -> Application
+app conn = serve api $ server conn
 
 api :: Proxy APIWithSwagger
 api = Proxy
 
-server :: Server APIWithSwagger
-server =
+server :: Connection -> Server APIWithSwagger
+server conn =
   return swaggerDoc
-    :<|> return annie
-    :<|> progress
+    :<|> pure annie
+    :<|> progress conn
     :<|> serveDirectoryWith jsSettings
-    :<|> return home
-    :<|> return home
+    :<|> pure home
+    :<|> pure home
 
 annie =
   html
@@ -90,8 +98,11 @@ home = html $ do
   body "Hello Sailor! (not dynamic)"
   script ! type_ "text/javascript" ! src "static/impatience.js" $ mempty
 
-progress :: Int -> Handler Progress
-progress p = maybe (throwError err404) return $ defaultProgressEntries !? p
+progress :: Connection -> Int32 -> Handler Progress
+progress conn i = do
+  found <- liftIO $ Session.run (progressById i) conn
+  -- handle query errors correctly
+  maybe (throwError err404) pure $ fromRight Nothing found
 
 instance ToSchema Html where
   declareNamedSchema _ = declareNamedSchema (Proxy :: Proxy String)

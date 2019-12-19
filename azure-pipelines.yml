@@ -57,12 +57,16 @@ stages:
         stack setup
       displayName: Install GHC
     - script: |
+        sudo apt-get install -y libpq-dev
         export PATH=$HOME/.local/bin:$PATH
         mkdir -p bin
+        mkdir -p bin/lib
         curl -sSL https://raw.github.com/ndmitchell/hlint/master/misc/run.sh | sh -s src
         stack build --copy-bins --local-bin-path ./bin
+        ldd ./bin/impatience-exe
+        ldd ./bin/impatience-exe | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -v '{}' bin/lib
       displayName: Build Non-Tests
-    - publish: bin/impatience-exe
+    - publish: bin/
       artifact: exe
     - script: |
         export PATH=$HOME/.local/bin:$PATH
@@ -135,7 +139,7 @@ stages:
         cp Dockerfile Dockerfile.test
         mkdir -p bin
         cp $(Pipeline.Workspace)/test-exe/impatience-test bin/impatience-test
-        cp $(Pipeline.Workspace)/exe/impatience-exe bin/impatience-exe
+        cp -r $(Pipeline.Workspace)/exe/. bin/
         chmod -R 777 ./bin
         echo "COPY bin/impatience-test /app/impatience-test" >> Dockerfile.test
         echo "ENV TASTY_ANSI_TRICKS=false" >> Dockerfile.test
@@ -157,7 +161,7 @@ stages:
       artifact: exe
     - script: |
         mkdir -p bin
-        cp $(Pipeline.Workspace)/exe/impatience-exe bin/impatience-exe
+        cp -r $(Pipeline.Workspace)/exe/. bin/
         chmod -R 777 ./bin
         curl -sSL https://github.com/upx/upx/releases/download/v3.95/upx-3.95-amd64_linux.tar.xz -o upx.tar.xz
         tar -xf upx.tar.xz
@@ -190,18 +194,27 @@ stages:
           - task: KubernetesManifest@0
             displayName: Create image pull secret
             inputs:
-              action: 'createSecret'
-              kubernetesServiceConnection: 'impatienceKubernetes'
-              namespace: 'default'
-              secretType: 'dockerRegistry'
-              secretName: 'impatiencepullsecret'
-              dockerRegistryEndpoint: 'impatienceregistry'
+              action: createSecret
+              kubernetesServiceConnection: impatienceKubernetes
+              namespace: default
+              secretType: dockerRegistry
+              secretName: impatiencepullsecret
+              dockerRegistryEndpoint: impatienceregistry
+          - task: KubernetesManifest@0
+            displayName: Create connection string secret
+            inputs:
+              action: createSecret
+              kubernetesServiceConnection: impatienceKubernetes
+              namespace: default
+              secretType: generic
+              secretName: impatience-conn
+              secretArguments: --from-literal=conn-string='$(Impatience.ConnectionString)'
           - task: KubernetesManifest@0
             displayName: Deploy to k8s cluster
             inputs:
               action: deploy
-              kubernetesServiceConnection: 'impatienceKubernetes'
-              namespace: 'default'
+              kubernetesServiceConnection: impatienceKubernetes
+              namespace: default
               manifests: |
                 $(Pipeline.Workspace)/manifests/dev.yml
                 $(Pipeline.Workspace)/manifests/service.yml
