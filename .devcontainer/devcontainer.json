@@ -2,7 +2,6 @@
     "name": "impatience",
     "appPort": 1234,
     "dockerComposeFile": "docker-compose.yml",
-    "postCreateCommand": "psql \"postgresql://postgres:localpass@db\" -a -f schema/destroy-and-recreate.sql",
     "service": "dev",
     "workspaceFolder": "/workspace",
     "extensions": [

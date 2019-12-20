@@ -67,8 +67,11 @@ startApp = withStdoutLogger $ \logger -> do
   let settings = setPort 1234 $ setLogger logger defaultSettings
   connString <- input auto "./impatience.dhall"
   -- use a connection pool
-  Right conn <- Connection.acquire $ encodeUtf8 connString
-  runSettings settings $ app conn
+  connResult <- Connection.acquire $ encodeUtf8 connString
+  case connResult of
+    Left (Just errMsg) -> error $ show errMsg
+    Left Nothing -> error "Unspecified connection error"
+    Right conn -> runSettings settings $ app conn
 
 app :: Connection -> Application
 app conn = serve api $ server conn
