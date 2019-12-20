@@ -208,7 +208,7 @@ stages:
               namespace: default
               secretType: generic
               secretName: impatience-conn
-              secretArguments: --from-literal=conn-string='$(Impatience.ConnectionString)'
+              secretArguments: --from-literal=conn-string=$(Impatience.ConnectionString)
           - task: KubernetesManifest@0
             displayName: Deploy to k8s cluster
             inputs:
