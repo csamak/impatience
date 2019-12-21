@@ -2,18 +2,17 @@
 
 module Database.Statement where
 
-import           Data.Coerce
-import           Data.Int
-import           Data.Tuple.Curry
-import           Data.Profunctor
-import           Hasql.Statement
-import           Hasql.TH
+import           Data.Coerce                    ( coerce )
+import           Data.Int                       ( Int32 )
+import           Data.Tuple.Curry               ( uncurryN )
+import           Data.Profunctor                ( dimap )
+import           Hasql.Statement                ( Statement )
+import           Hasql.TH                       ( maybeStatement )
 import           Database.Types
 
 progressById :: Statement Int32 (Maybe Progress)
-progressById = dimap
-  coerce
-  (fmap (uncurryN Progress))
+progressById =
+  dimap coerce (fmap . uncurryN $ Progress)
   [maybeStatement|
         select id :: int4, completed :: int4, total :: int4
         from progresses

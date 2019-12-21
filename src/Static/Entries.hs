@@ -1,8 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Static.Entries
-    ( jsEntries
-    , settings
-    )
+  ( jsEntries
+  , settings
+  )
 where
 
 import           WaiAppStatic.Storage.Embedded  ( EmbeddableEntry(..)
@@ -20,19 +20,19 @@ import           Language.Haskell.TH.Syntax     ( qAddDependentFile )
 
 settings :: [(FilePath, IO EmbeddableEntry)] -> ExpQ
 settings entries = do
-    mapM_ (qAddDependentFile . fst) entries
-    mkSettings (mapM snd entries) -- also consider servant-static-th as an alternative
+  mapM_ (qAddDependentFile . fst) entries
+  mkSettings (mapM snd entries) -- also consider servant-static-th as an alternative
 
 entry path location mime =
-    ( path
-    , do
-        contents <- BL.readFile path
-        return EmbeddableEntry
-            { eLocation = location
-            , eMimeType = mime
-            , eContent  = Left (pack . show $ (hashlazy contents :: Digest MD5), contents)
-            }
-    )
+  ( path
+  , do
+    contents <- BL.readFile path
+    return EmbeddableEntry
+      { eLocation = location
+      , eMimeType = mime
+      , eContent  = Left (pack . show $ (hashlazy contents :: Digest MD5), contents)
+      }
+  )
 
 jsEntries :: [(FilePath, IO EmbeddableEntry)]
 jsEntries = [entry "static/app.js" "impatience.js" "application/javascript"]

@@ -7,24 +7,31 @@
 module Lib where
 
 
-import           Control.Monad.IO.Class
-import           Data.Aeson
-import           Data.Either.Combinators
-import           Data.Int
+import           Control.Monad.IO.Class         ( MonadIO(liftIO) )
+import           Data.Aeson                     ( FromJSON
+                                                , ToJSON
+                                                )
+import           Data.Either.Combinators        ( fromRight )
+import           Data.Int                       ( Int32 )
 import           Data.Text.Encoding             ( encodeUtf8 )
 import           Database.Types
 import           Database.Session
-import           Dhall                          ( input, auto )
+import           Dhall                          ( input
+                                                , auto
+                                                )
 import qualified Hasql.Connection              as Connection
 import           Hasql.Connection               ( Connection )
 import qualified Hasql.Session                 as Session
                                                 ( run )
-import           Network.Wai
-import           Network.Wai.Handler.Warp
+import           Network.Wai.Handler.Warp       ( setLogger
+                                                , setPort
+                                                , runSettings
+                                                , defaultSettings
+                                                )
 import           Network.Wai.Logger             ( withStdoutLogger )
 import           Servant
 import           Servant.HTML.Blaze             ( HTML )
-import           Servant.Swagger
+import           Servant.Swagger                ( toSwagger )
 import           Static.Settings
 import           Text.Blaze.Html                ( Html )
 import           Text.Blaze.Html5               ( html
@@ -37,8 +44,14 @@ import qualified Text.Blaze.Html5              as H
                                                 ( head
                                                 , title
                                                 )
-import           Text.Blaze.Html5.Attributes
-import           Control.Lens
+import           Text.Blaze.Html5.Attributes    ( height
+                                                , src
+                                                , type_
+                                                , width
+                                                )
+import           Control.Lens                   ( (&)
+                                                , (?~)
+                                                )
 import           Data.Swagger                   ( Swagger
                                                 , ToSchema
                                                 , URL(..)
@@ -69,9 +82,9 @@ startApp = withStdoutLogger $ \logger -> do
   -- use a connection pool
   connResult <- Connection.acquire $ encodeUtf8 connString
   case connResult of
-    Left (Just errMsg) -> error $ show errMsg
-    Left Nothing -> error "Unspecified connection error"
-    Right conn -> runSettings settings $ app conn
+    Left  (Just errMsg) -> error $ show errMsg
+    Left  Nothing       -> error "Unspecified connection error"
+    Right conn          -> runSettings settings $ app conn
 
 app :: Connection -> Application
 app conn = serve api $ server conn

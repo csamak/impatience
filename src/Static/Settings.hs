@@ -1,8 +1,8 @@
 {-# LANGUAGE TemplateHaskell #-}
 -- |Settings for exe embedded static resources (e.g. js)
 module Static.Settings
-    ( jsSettings
-    )
+  ( jsSettings
+  )
 where
 
 import           Static.Entries

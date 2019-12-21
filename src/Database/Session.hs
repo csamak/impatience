@@ -1,7 +1,9 @@
 module Database.Session where
 
-import           Hasql.Session
-import           Data.Int
+import           Hasql.Session                  ( statement
+                                                , Session
+                                                )
+import           Data.Int                       ( Int32 )
 import           Database.Types
 import qualified Database.Statement            as Statement
 
