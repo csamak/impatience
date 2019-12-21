@@ -9,3 +9,6 @@ import qualified Database.Statement            as Statement
 
 progressById :: Int32 -> Session (Maybe Progress)
 progressById i = statement i Statement.progressById
+
+insertProgress :: Progress -> Session Int32
+insertProgress p = statement p Statement.insertProgress

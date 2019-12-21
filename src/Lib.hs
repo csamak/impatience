@@ -11,7 +11,9 @@ import           Control.Monad.IO.Class         ( MonadIO(liftIO) )
 import           Data.Aeson                     ( FromJSON
                                                 , ToJSON
                                                 )
-import           Data.Either.Combinators        ( fromRight )
+import           Data.Either.Combinators        ( fromRight
+                                                , rightToMaybe
+                                                )
 import           Data.Int                       ( Int32 )
 import           Data.Text.Encoding             ( encodeUtf8 )
 import           Database.Types
@@ -69,6 +71,7 @@ instance FromJSON Progress
 -- brittany-disable-next-binding
 type API = "annieareyouok" :> Get '[ HTML] Html
        :<|> "progress" :> Capture "id" Int32 :> Get '[ JSON] Progress
+       :<|> "progress" :> ReqBody '[JSON] Progress :> Post '[ JSON] Int32
        :<|> "static" :> Raw
        :<|> "index.html" :> Get '[ HTML] Html
        :<|> Get '[ HTML] Html
@@ -97,6 +100,7 @@ server conn =
   return swaggerDoc
     :<|> pure annie
     :<|> progress conn
+    :<|> newProgress conn
     :<|> serveDirectoryWith jsSettings
     :<|> pure home
     :<|> pure home
@@ -119,6 +123,11 @@ progress conn i = do
   found <- liftIO $ Session.run (progressById i) conn
   -- handle query errors correctly
   maybe (throwError err404) pure $ fromRight Nothing found
+
+newProgress :: Connection -> Progress -> Handler Int32
+newProgress conn p = do
+  newId <- liftIO $ Session.run (insertProgress p) conn
+  maybe (throwError err404) pure $ rightToMaybe newId
 
 instance ToSchema Html where
   declareNamedSchema _ = declareNamedSchema (Proxy :: Proxy String)
