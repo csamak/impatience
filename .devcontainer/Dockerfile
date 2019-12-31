@@ -9,19 +9,24 @@ RUN apt-get update && apt install -y wget lsb-release \
     && rm -rf /var/lib/apt/lists/*
 
 FROM haskell:8.8.1
-COPY --from=stack-root /root/.stack /root/.stack
-RUN mkdir -p $HOME/.local/bin \
-    && git clone https://github.com/digital-asset/ghcide.git \
-    && cd ghcide \
-    && stack install --stack-yaml stack88.yaml \
-    && stack install hlint brittany weeder --stack-yaml stack88.yaml
 RUN curl -sL https://deb.nodesource.com/setup_13.x | bash - \
-    && apt-get update && apt install -y nodejs wget lsb-release \
+    && apt-get update && apt install -y nodejs wget lsb-release libicu-dev libtinfo-dev libgmp-dev \
     && echo "deb http://apt.postgresql.org/pub/repos/apt/ `lsb_release -cs`-pgdg main" >> /etc/apt/sources.list.d/pgdg.list \
     && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
     && apt-get update && apt-get install -y libpq-dev postgresql-client \
     && npm install -g --unsafe-perm purescript spago concurrently parcel \
+    && wget --quiet -O - https://github.com/dhall-lang/dhall-haskell/releases/download/1.28.0/dhall-lsp-server-1.0.3-x86_64-linux.tar.bz2 \
+    | tar -xjvf - --strip-components 2 -C /usr/local/bin/ ./bin/dhall-lsp-server \
     && rm -rf /var/lib/apt/lists/*
+# clone from haskell/haskell-ide-engine once https://github.com/haskell/haskell-ide-engine/pull/1482 is merged
+RUN git clone --single-branch --branch hie-bios https://github.com/Avi-D-coder/haskell-ide-engine --recurse-submodules \
+    && cd haskell-ide-engine \
+    && sed -i "s|lts-14.11 # GHC 8.6.5|nightly-2019-12-31 # GHC 8.8.1 |g" install/shake.yaml \
+    && stack install.hs cabal-hie-8.8.1 \
+    && stack install.hs cabal-build-data \
+    && cd .. && rm -rf haskell-ide-engine \
+    && rm -rf /root/.stack
+COPY --from=stack-root /root/.stack /root/.stack
 ENV PATH="${HOME}/.local/bin:${PATH}"
 
 ENV SHELL /bin/bash
