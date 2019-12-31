@@ -23,8 +23,8 @@ RUN curl -sL https://deb.nodesource.com/setup_13.x | bash - \
 RUN git clone --single-branch --branch hie-bios https://github.com/Avi-D-coder/haskell-ide-engine --recurse-submodules \
     && cd haskell-ide-engine \
     && sed -i "s|lts-14.11 # GHC 8.6.5|nightly-2019-12-31 # GHC 8.8.1 |g" install/shake.yaml \
-    && stack install.hs cabal-hie-8.8.1 \
-    && stack install.hs cabal-build-data \
+    && stack ./install.hs hie-8.8.1 \
+    && stack ./install.hs build-data \
     && cd .. && rm -rf haskell-ide-engine \
     && rm -rf /root/.stack
 ENV PATH="${HOME}/.local/bin:${PATH}"
