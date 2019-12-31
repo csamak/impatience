@@ -9,6 +9,7 @@ RUN apt-get update && apt install -y wget lsb-release \
     && rm -rf /var/lib/apt/lists/*
 
 FROM haskell:8.8.1
+COPY --from=stack-root /root/.stack /root/.stack
 RUN curl -sL https://deb.nodesource.com/setup_13.x | bash - \
     && apt-get update && apt install -y nodejs wget lsb-release libicu-dev libtinfo-dev libgmp-dev \
     && echo "deb http://apt.postgresql.org/pub/repos/apt/ `lsb_release -cs`-pgdg main" >> /etc/apt/sources.list.d/pgdg.list \
@@ -26,7 +27,6 @@ RUN git clone --single-branch --branch hie-bios https://github.com/Avi-D-coder/h
     && stack install.hs cabal-build-data \
     && cd .. && rm -rf haskell-ide-engine \
     && rm -rf /root/.stack
-COPY --from=stack-root /root/.stack /root/.stack
 ENV PATH="${HOME}/.local/bin:${PATH}"
 
 ENV SHELL /bin/bash
