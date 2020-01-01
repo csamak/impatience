@@ -18,7 +18,9 @@ RUN curl -sL https://deb.nodesource.com/setup_13.x | bash - \
     && npm install -g --unsafe-perm purescript spago concurrently parcel \
     && wget --quiet -O - https://github.com/dhall-lang/dhall-haskell/releases/download/1.28.0/dhall-lsp-server-1.0.3-x86_64-linux.tar.bz2 \
     | tar -xjvf - --strip-components 2 -C /usr/local/bin/ ./bin/dhall-lsp-server \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && mkdir -p $HOME/.local/bin
+ENV PATH="${HOME}/.local/bin:${PATH}"
 # clone from haskell/haskell-ide-engine once https://github.com/haskell/haskell-ide-engine/pull/1482 is merged
 RUN git clone --single-branch --branch hie-bios https://github.com/Avi-D-coder/haskell-ide-engine --recurse-submodules \
     && cd haskell-ide-engine \
@@ -27,6 +29,5 @@ RUN git clone --single-branch --branch hie-bios https://github.com/Avi-D-coder/h
     && stack ./install.hs build-data \
     && cd .. && rm -rf haskell-ide-engine \
     && rm -rf /root/.stack
-ENV PATH="${HOME}/.local/bin:${PATH}"
 
 ENV SHELL /bin/bash
