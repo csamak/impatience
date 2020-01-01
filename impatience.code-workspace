@@ -8,5 +8,10 @@
             "name": "Site",
             "path": "site"
         }
-    ]
+    ],
+    "extensions": {
+        "recommendations": [
+            "ms-vscode-remote.remote-containers"
+        ]
+    }
 }

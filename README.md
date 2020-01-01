@@ -15,7 +15,7 @@ For a non-containerized alternative, follow guides for installing stack and spag
 ### Multi-root Workspace
 
 `impatience.code-workspace` defines a multi-root workspace which simplifies tooling.  
-For now subdirectories do not have thier own `.devcontainer`.
+For now subdirectories do not have their own `.devcontainer`.
 
 ### Basic commands:
 

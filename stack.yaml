@@ -1,14 +1,11 @@
-resolver: nightly-2019-12-19
+resolver: nightly-2020-01-01
 
 extra-deps:
   - hasql-th-0.3.0.1@sha256:a093794c55f5c0421aee60b0312c58399c8c8fb304ae44525603ad00a20b2b97,4379
   - fast-builder-0.1.2.0@sha256:d01db8a5f1ac262e2db0375c47e46660c67ad4145bef64cc7303ade096e461ee,2801
   - headed-megaparsec-0.1.0.2@sha256:51db1cfed48fbe6af6b20365a53b434cd272e8829292a92bec88cf23ae602303,1569
-  - github: well-typed/cborg
-    commit: 69ea9f9c66e13ff25e87db4c9a504de8277be0dd
-    subdirs:
-      - cborg-json
+  - cborg-json-0.2.2.0@sha256:55eb9d8e897ae9fb6c8da7aed882d0c78b326632b1b58966921a1fcde2b88b8d,2035
   - github: dhall-lang/dhall-haskell
-    commit: 1c592f402fcc85d28c9394b56669c438dee4a23d
+    commit: b623ea7b360f84baf9183ddecdb3f4bfde177dcd
     subdirs:
       - dhall

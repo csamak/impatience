@@ -5,11 +5,12 @@
     "service": "dev",
     "workspaceFolder": "/workspace",
     "extensions": [
-        "DigitalAssetHoldingsLLC.ghcide",
+        "alanz.vscode-hie-server",
         "justusadam.language-haskell",
         "ms-azure-devops.azure-pipelines",
         "nwolverson.ide-purescript",
-        "redhat.vscode-yaml",
-        "vscode-language-dhall" // also vscode-dhall-lsp-server once cborg-json 0.2.2.0 is in hackage
+        "panaeon.vscode-dhall-lsp-server",
+        "panaeon.dhall-lang",
+        "redhat.vscode-yaml"
     ]
 }
