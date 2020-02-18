@@ -23,11 +23,11 @@ RUN curl -sL https://deb.nodesource.com/setup_13.x | bash - \
     && mkdir -p $HOME/.local/bin
 ENV PATH="${HOME}/.local/bin:${PATH}"
 # clone from haskell/haskell-ide-engine once https://github.com/haskell/haskell-ide-engine/pull/1482 is merged
-RUN git clone --single-branch --branch hie-bios https://github.com/Avi-D-coder/haskell-ide-engine --recurse-submodules \
+RUN git clone https://github.com/haskell/haskell-ide-engine --recurse-submodules \
     && cd haskell-ide-engine \
-    && sed -i "s|lts-14.11 # GHC 8.6.5|nightly-2020-01-01 # GHC 8.8.1 |g" install/shake.yaml \
-    && stack --stack-yaml=stack-8.8.1.yaml install hoogle \
-    && stack ./install.hs hie-8.8.1 \
+    && sed -i "s|lts-14.11 # GHC 8.6.5|nightly-2020-02-17 # GHC 8.8.2 |g" install/shake.yaml \
+    && stack --stack-yaml=stack-8.8.2.yaml install hoogle \
+    && stack ./install.hs hie-8.8.2 \
     && stack ./install.hs build-data \
     && cd .. && rm -rf haskell-ide-engine
 
