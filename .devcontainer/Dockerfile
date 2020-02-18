@@ -5,6 +5,8 @@ RUN apt-get update && apt install -y wget lsb-release \
     && echo "deb http://apt.postgresql.org/pub/repos/apt/ `lsb_release -cs`-pgdg main" >> /etc/apt/sources.list.d/pgdg.list \
     && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
     && apt-get update && apt install -y libpq-dev \
+    # remove setup when haskell:8.8.2 is available
+    && stack setup
     && stack test --only-dependencies \
     && rm -rf /var/lib/apt/lists/*
 
@@ -26,6 +28,8 @@ ENV PATH="${HOME}/.local/bin:${PATH}"
 RUN git clone https://github.com/haskell/haskell-ide-engine --recurse-submodules \
     && cd haskell-ide-engine \
     && sed -i "s|lts-14.11 # GHC 8.6.5|nightly-2020-02-17 # GHC 8.8.2 |g" install/shake.yaml \
+    # remove setup when haskell:8.8.2 is available
+    && stack --stack-yaml=stack-8.8.2.yaml setup
     && stack --stack-yaml=stack-8.8.2.yaml install hoogle \
     && stack ./install.hs hie-8.8.2 \
     && stack ./install.hs build-data \
