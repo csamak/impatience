@@ -63,7 +63,7 @@ stages:
         mkdir -p bin/lib
         curl -sSL https://raw.github.com/ndmitchell/hlint/master/misc/run.sh | sh -s src
         stack build --copy-bins --local-bin-path ./bin
-        ldd ./bin/impatience-exe
+        ldd --version ./bin/impatience-exe
         ldd ./bin/impatience-exe | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -v '{}' bin/lib
       displayName: Build Non-Tests
     - publish: bin/
