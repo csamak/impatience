@@ -1,5 +1,5 @@
 variables:
-  STACK_ROOT: ~/.stack-root
+  STACK_ROOT: ~/.stack
   tag: '$(Build.BuildId)'
   npm_config_cache: $(Pipeline.Workspace)/.npm
 
@@ -19,7 +19,7 @@ stages:
         path: '.stack-root-cache'
         cacheHitVar: 'ROOT_CACHE_HIT'
     - script: |
-        mkdir -p $STACK_ROOT
+        sudo mkdir -m 777 -p $STACK_ROOT
         tar -xf .stack-root-cache/stack-root.tar.gz -C /
       displayName: Extract stack root cache
       condition: eq(variables.ROOT_CACHE_HIT, 'true')
@@ -30,11 +30,12 @@ stages:
         path: '.stack-work-cache'
         cacheHitVar: 'WORK_CACHE_HIT'
     - script: |
-        mkdir -p .stack-work
+        sudo mkdir -m 777 -p .stack-work
         tar -xf .stack-work-cache/stack-work.tar.gz
       displayName: Extract stack work cache
       condition: eq(variables.WORK_CACHE_HIT, 'true')
     - script: |
+        sudo chmod -R 777 ~
         TAG=$(wget -q -O - https://github.com/purescript/purescript/releases/latest --server-response --max-redirect 0 2>&1 | sed -n -e 's/.*Location:.*tag\///p')
         wget -O $HOME/purescript.tar.gz https://github.com/purescript/purescript/releases/download/$TAG/linux64.tar.gz
         tar -xvf $HOME/purescript.tar.gz -C $HOME/
