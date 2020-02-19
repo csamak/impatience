@@ -10,6 +10,7 @@ stages:
   - job: Build
     pool:
       vmImage: 'ubuntu-latest'
+    container: ubuntu:20.04 # remove when 20.04 is available in the pool
     steps:
     - task: CacheBeta@0
       displayName: Download stack root cache
