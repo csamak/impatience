@@ -59,6 +59,9 @@ executables:
     - -Wall
     - -Werror
     - -O2
+    - -static
+    cc-options: -static
+    ld-options: -static -pthread
     dependencies:
       - impatience
 
