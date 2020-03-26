@@ -1,7 +1,9 @@
-FROM fpco/haskell-scratch:integer-gmp
+FROM scratch
 
 WORKDIR /app
-COPY ./bin/lib/. /usr/lib/x86_64-linux-gnu/
+
+COPY ./root /
+COPY ./bin/lib/. /lib/x86_64-linux-gnu/
 COPY ./impatience.dhall /app/impatience.dhall
 COPY ./bin/impatience-exe /app/impatience-exe
 ENV PATH="/app:${PATH}"
