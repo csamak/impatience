@@ -1,0 +1,13 @@
+load(
+    "@com_habito_rules_purescript//purescript:purescript.bzl",
+    "purescript_toolchain",
+)
+
+purescript_toolchain(
+    name = "purescript",
+    version = "0.13.6",
+    tools = [
+        "@nixpkgs_purescript//:bin",
+        "@nixpkgs_tar//:bin",
+    ],
+)

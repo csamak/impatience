@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 services:
   db:
     image: postgres
@@ -8,6 +8,7 @@ services:
       POSTGRES_PASSWORD: localpass
   dev:
     image: haskell.azurecr.io/impatiencedevenv:master
+    user: containeruser
     command: /bin/sh -c "while sleep 1000; do :; done"
     volumes:
       - ..:/workspace:cached
