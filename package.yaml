@@ -41,6 +41,7 @@ library:
     - swagger2
     - text
     - template-haskell
+    - time
     - transformers
     - tuple
     - wai
@@ -92,6 +93,7 @@ tests:
       - tasty-hspec
       - tasty-hunit
       - text
+      - time
       - wai-app-static
       - wai-extra
       - zlib
