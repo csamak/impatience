@@ -15,7 +15,7 @@ FROM haskell:8.8.2
 COPY --from=stack-root /root/.stack /root/.stack
 RUN apt-get update \
     && curl "https://raw.githubusercontent.com/microsoft/vscode-dev-containers/master/script-library/common-debian.sh" \
-    | bash -s "false" "containeruser"
+    | bash -s "false" "containeruser" \
     && rm -rf /var/lib/apt/lists/*
 USER containeruser
 RUN curl -sL https://deb.nodesource.com/setup_13.x | bash - \
