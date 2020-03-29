@@ -1,4 +1,6 @@
 FROM haskell:8.8.2 AS stack-root
+ENV LANG C.UTF-8
+ENV LC_ALL C.UTF-8
 COPY . /src
 WORKDIR /src
 RUN apt-get update && apt install -y wget lsb-release \
