@@ -13,8 +13,10 @@ RUN apt-get update && apt install -y wget lsb-release \
 FROM haskell:8.8.2
 # could do this copy after HIE to reduce size
 COPY --from=stack-root /root/.stack /root/.stack
-RUN curl "https://raw.githubusercontent.com/microsoft/vscode-dev-containers/master/script-library/common-debian.sh" \
+RUN apt-get update \
+    && curl "https://raw.githubusercontent.com/microsoft/vscode-dev-containers/master/script-library/common-debian.sh" \
     | bash -s "false" "containeruser"
+    && rm -rf /var/lib/apt/lists/*
 USER containeruser
 RUN curl -sL https://deb.nodesource.com/setup_13.x | bash - \
     && sudo apt-get update && apt install -y nodejs libicu-dev libtinfo-dev libgmp-dev \
