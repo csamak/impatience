@@ -63,6 +63,10 @@ import           Data.Swagger                   ( Swagger
                                                 , url
                                                 )
 
+instance ToSchema Job
+instance ToJSON Job
+instance FromJSON Job
+
 instance ToSchema Progress
 instance ToJSON Progress
 instance FromJSON Progress
@@ -70,6 +74,8 @@ instance FromJSON Progress
 -- see https://github.com/lspitzner/brittany/issues/271
 -- brittany-disable-next-binding
 type API = "annieareyouok" :> Get '[ HTML] Html
+       :<|> "job" :> Capture "id" Int32 :> Get '[ JSON] Job
+       :<|> "job" :> ReqBody '[JSON] Job :> Post '[ JSON] Int32
        :<|> "progress" :> Capture "id" Int32 :> Get '[ JSON] Progress
        :<|> "progress" :> ReqBody '[JSON] Progress :> Post '[ JSON] Int32
        :<|> "static" :> Raw
@@ -99,6 +105,8 @@ server :: Connection -> Server APIWithSwagger
 server conn =
   return swaggerDoc
     :<|> pure annie
+    :<|> job conn
+    :<|> newJob conn
     :<|> progress conn
     :<|> newProgress conn
     :<|> serveDirectoryWith jsSettings
@@ -117,6 +125,16 @@ home = html $ do
   H.head $ H.title "Sailor Greetings"
   body "Hello Sailor! (not dynamic)"
   script ! type_ "text/javascript" ! src "static/impatience.js" $ mempty
+
+job :: Connection -> Int32 -> Handler Job
+job conn i = do
+  found <- liftIO $ Session.run (jobById i) conn
+  maybe (throwError err404) pure $ fromRight Nothing found
+
+newJob :: Connection -> Job -> Handler Int32
+newJob conn j = do
+  newId <- liftIO $ Session.run (insertJob j) conn
+  maybe (throwError err404) pure $ rightToMaybe newId
 
 progress :: Connection -> Int32 -> Handler Progress
 progress conn i = do
