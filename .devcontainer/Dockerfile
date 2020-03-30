@@ -19,7 +19,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 USER containeruser
 RUN curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash - \
-    && sudo apt-get update && apt install -y nodejs libicu-dev libtinfo-dev libgmp-dev \
+    && sudo apt-get update && sudo apt-get install -y nodejs libicu-dev libtinfo-dev libgmp-dev \
     && echo "deb http://apt.postgresql.org/pub/repos/apt/ `lsb_release -cs`-pgdg main" >> /etc/apt/sources.list.d/pgdg.list \
     && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
     && sudo apt-get update && sudo apt-get install -y libpq-dev postgresql-client \
