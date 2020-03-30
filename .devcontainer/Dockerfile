@@ -19,7 +19,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 USER containeruser
 RUN curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash - \
-    && sudo apt-get update && sudo apt-get install -y nodejs libicu-dev libtinfo-dev libgmp-dev libpq-dev postgresql-client \
+    && sudo apt-get update && sudo apt-get install -y nodejs libicu-dev libtinfo-dev libgmp-dev bzip2 libpq-dev postgresql-client \
     && sudo npm install -g --unsafe-perm purescript spago concurrently parcel \
     && wget --quiet -O - https://github.com/dhall-lang/dhall-haskell/releases/download/1.31.0/dhall-lsp-server-1.0.6-x86_64-linux.tar.bz2 \
     | sudo tar -xjvf - --strip-components 2 -C /usr/local/bin/ ./bin/dhall-lsp-server \
