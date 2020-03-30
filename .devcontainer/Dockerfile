@@ -3,7 +3,7 @@ ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
 COPY . /src
 WORKDIR /src
-RUN apt-get update && apt install -y wget lsb-release \
+RUN set -x && apt-get update && apt install -y wget lsb-release \
     && echo "deb http://apt.postgresql.org/pub/repos/apt/ `lsb_release -cs`-pgdg main" >> /etc/apt/sources.list.d/pgdg.list \
     && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
     && apt-get update && apt install -y libpq-dev \
@@ -13,12 +13,13 @@ RUN apt-get update && apt install -y wget lsb-release \
 FROM haskell:8.8.2
 # could do this copy after HIE to reduce size
 COPY --from=stack-root /root/.stack /root/.stack
-RUN apt-get update \
+RUN set -x && apt-get update \
     && curl "https://raw.githubusercontent.com/microsoft/vscode-dev-containers/master/script-library/common-debian.sh" \
     | bash -s "false" "containeruser" \
     && rm -rf /var/lib/apt/lists/*
 USER containeruser
-RUN curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash - \
+RUN cd ~ \
+    && curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash - \
     && sudo apt-get update && sudo apt-get install -y nodejs libicu-dev libtinfo-dev libgmp-dev bzip2 libpq-dev postgresql-client \
     && sudo npm install -g --unsafe-perm purescript spago concurrently parcel \
     && wget --quiet -O - https://github.com/dhall-lang/dhall-haskell/releases/download/1.31.0/dhall-lsp-server-1.0.6-x86_64-linux.tar.bz2 \
@@ -37,5 +38,4 @@ RUN mkdir -p $HOME/.local/bin \
     && stack ./install.hs hie-8.8.2 \
     && stack ./install.hs data \
     && cd .. && rm -rf haskell-ide-engine
-# https://github.com/bazelbuild/buildtools/releases/latest/download/buildifier
 ENV SHELL /bin/bash
