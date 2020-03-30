@@ -22,9 +22,9 @@ RUN set -x && apt-get update \
 RUN mkdir -p /home/containeruser/.local/bin \
     && mkdir -p ~/.local/bin \
     && wget https://github.com/bazelbuild/buildtools/releases/latest/download/buildifier \
-    && chmod +x buildifier && mv buildifier ~/.local/bin/ \
+    && chmod +x buildifier && mv buildifier /usr/bin/ \
     && wget https://github.com/bazelbuild/bazel/releases/download/2.2.0/bazel-2.2.0-linux-x86_64 \
-    && mv bazel-2.2.0-linux-x86_64 bazel && chmod +x bazel && mv bazel ~/.local/bin/ \
+    && mv bazel-2.2.0-linux-x86_64 bazel && chmod +x bazel && mv bazel /usr/bin/ \
     && git clone https://github.com/haskell/haskell-ide-engine --recurse-submodules \
     && cd haskell-ide-engine \
     && sed -i "s|lts-13.19 # last lts with GHC 8.6.5|nightly-2020-02-17 # GHC 8.8.2 |g" install/shake.yaml \
@@ -34,6 +34,7 @@ RUN mkdir -p /home/containeruser/.local/bin \
     && cd .. && rm -rf haskell-ide-engine \
     && mv /root/.stack /home/containeruser/.stack \
     && mv ~/.local/bin /home/containeruser/.local/ \
+    && chown -R containeruser:containeruser /workspace \
     && chown -R containeruser:containeruser /home/containeruser/
 USER containeruser
 ENV PATH="/home/containeruser/.local/bin:${PATH}"
