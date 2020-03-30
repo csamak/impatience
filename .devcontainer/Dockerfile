@@ -33,8 +33,8 @@ RUN mkdir -p /home/containeruser/.local/bin \
     && stack ./install.hs data \
     && cd .. && rm -rf haskell-ide-engine \
     && mv /root/.stack /home/containeruser/.stack \
-    && mv ~/.local/bin /home/containeruser/.local/bin \
+    && mv ~/.local/bin /home/containeruser/.local/ \
     && chown -R containeruser:containeruser /home/containeruser/
 USER containeruser
-ENV PATH="${HOME}/.local/bin:${PATH}"
+ENV PATH="/home/containeruser/.local/bin:${PATH}"
 ENV SHELL /bin/bash
