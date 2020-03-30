@@ -20,10 +20,10 @@ RUN apt-get update \
 USER containeruser
 RUN curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash - \
     && sudo apt-get update && sudo apt-get install -y nodejs libicu-dev libtinfo-dev libgmp-dev libpq-dev postgresql-client \
-    && npm install -g --unsafe-perm purescript spago concurrently parcel \
+    && sudo npm install -g --unsafe-perm purescript spago concurrently parcel \
     && wget --quiet -O - https://github.com/dhall-lang/dhall-haskell/releases/download/1.31.0/dhall-lsp-server-1.0.6-x86_64-linux.tar.bz2 \
-    | tar -xjvf - --strip-components 2 -C /usr/local/bin/ ./bin/dhall-lsp-server \
-    && rm -rf /var/lib/apt/lists/*
+    | sudo tar -xjvf - --strip-components 2 -C /usr/local/bin/ ./bin/dhall-lsp-server \
+    && sudo rm -rf /var/lib/apt/lists/*
 ENV PATH="${HOME}/.local/bin:${PATH}"
 RUN mkdir -p $HOME/.local/bin \
     && wget https://github.com/bazelbuild/buildtools/releases/latest/download/buildifier \
