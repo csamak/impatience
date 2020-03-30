@@ -3,10 +3,7 @@ ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
 COPY . /src
 WORKDIR /src
-RUN set -x && apt-get update && apt install -y wget lsb-release \
-    && echo "deb http://apt.postgresql.org/pub/repos/apt/ `lsb_release -cs`-pgdg main" >> /etc/apt/sources.list.d/pgdg.list \
-    && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
-    && apt-get update && apt install -y libpq-dev \
+RUN set -x && apt-get update && apt install -y wget lsb-release libpq-dev \
     && stack test --only-dependencies \
     && rm -rf /var/lib/apt/lists/*
 
