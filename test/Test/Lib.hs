@@ -11,6 +11,7 @@ import           Database.Types
 import           Hedgehog
 import qualified Hedgehog.Gen                  as Gen
 import qualified Hedgehog.Range                as Range
+import           Test.Tasty.HUnit               ( (@?) )
 
 genProgress :: Gen Progress
 genProgress = Progress <$> integerGen <*> integerGen <*> integerGen <*> integerGen <*> dateGen
