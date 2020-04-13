@@ -1,0 +1,6 @@
+schemaVersion: "2.0.0"
+metadataTest:
+  entrypoint: ["/impatience-exe"]
+fileContentTests:
+  - name: "Main Exe"
+    path: "/impatience-exe"

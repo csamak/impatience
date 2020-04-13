@@ -1,0 +1,51 @@
+load("@rules_haskell//haskell:defs.bzl", "haskell_test")
+load("@io_bazel_rules_docker//container:container.bzl", "container_image")
+load("@io_bazel_rules_docker//contrib:test.bzl", "container_test")
+
+package(default_testonly = 1)
+
+# TODO: Why does this have to be in a directory above Test?
+haskell_test(
+    name = "impatience_server_test",
+    srcs = glob(["Test/*.hs"]),
+    data = glob(["Test/*.hs"]),  # for hedgehog source annotation
+    main_function = "Test.Lib.main",
+    deps = [
+        "//src:Server",
+        "//src/Database",
+        "@stackage//:aeson",
+        "@stackage//:base",
+        "@stackage//:blaze-html",
+        "@stackage//:hedgehog",
+        "@stackage//:tasty",
+        "@stackage//:tasty-hedgehog",
+        "@stackage//:tasty-hunit",
+        "@stackage//:time",
+    ],
+)
+
+container_test(
+    name = "container_content_tests",
+    configs = ["container_content_tests.yml"],
+    driver = "tar",
+    image = "//:impatience",
+)
+
+container_image(
+    name = "test_image",
+    base = "//:impatience",
+    env = {
+        "TASTY_ANSI_TRICKS": "false",
+        "TASTY_HIDE_SUCCESSES": "true",
+    },
+    files = [
+        ":impatience_server_test",
+    ],
+)
+
+container_test(
+    name = "container_command_tests",
+    configs = ["container_command_tests.yml"],
+    image = ":test_image",
+    tags = ["manual"],  # only target that requires docker
+)

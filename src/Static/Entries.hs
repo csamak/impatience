@@ -34,5 +34,6 @@ entry path location mime =
       }
   )
 
+-- TODO: don't hardcode this path. See https://github.com/tweag/rules_haskell/issues/1296
 jsEntries :: [(FilePath, IO EmbeddableEntry)]
-jsEntries = [entry "static/app.js" "impatience.js" "application/javascript"]
+jsEntries = [entry "bazel-out/k8-fastbuild/bin/site/impatience-bundle.js" "impatience.js" "application/javascript"]

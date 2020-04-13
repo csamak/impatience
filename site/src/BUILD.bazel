@@ -1,0 +1,13 @@
+load("@com_habito_rules_purescript//purescript:purescript.bzl", "purescript_library")
+
+package(default_visibility = ["//visibility:public"])
+
+purescript_library(
+    name = "impatience",
+    srcs = glob(["*.purs"]),
+    deps = [
+        "@psc-package//:console",
+        "@psc-package//:effect",
+        "@psc-package//:prelude",
+    ],
+)

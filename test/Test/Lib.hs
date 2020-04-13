@@ -11,7 +11,14 @@ import           Database.Types
 import           Hedgehog
 import qualified Hedgehog.Gen                  as Gen
 import qualified Hedgehog.Range                as Range
-import           Test.Tasty.HUnit               ( (@?) )
+import           Test.Tasty
+import           Test.Tasty.Hedgehog
+import           Test.Tasty.HUnit               ( (@?), testCase )
+
+main = defaultMain $ testGroup "Tests" [
+    testCase "Health check has video HTML" unit_annie
+  , testProperty "Progress JSON round trips" hprop_progressToFromJsonIsIdentity
+  ]
 
 genProgress :: Gen Progress
 genProgress = Progress <$> integerGen <*> integerGen <*> integerGen <*> integerGen <*> dateGen
