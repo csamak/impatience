@@ -17,7 +17,7 @@ RUN set -x && apt-get update \
     && curl "https://raw.githubusercontent.com/microsoft/vscode-dev-containers/master/script-library/common-debian.sh" \
     | bash -s "false" "containeruser" \
     && curl -sL https://deb.nodesource.com/setup_13.x | bash - \
-    && apt-get update && apt-get install -y nodejs libicu-dev libtinfo-dev libgmp-dev bzip2 libpq-dev postgresql-client \
+    && apt-get install -y nodejs libicu-dev libtinfo-dev libgmp-dev bzip2 libpq-dev postgresql-client upx \
     && npm install -g --unsafe-perm purescript spago concurrently parcel \
     && wget --quiet -O - https://github.com/dhall-lang/dhall-haskell/releases/download/1.31.0/dhall-lsp-server-1.0.6-x86_64-linux.tar.bz2 \
     | tar -xjvf - --strip-components 2 -C /usr/local/bin/ ./bin/dhall-lsp-server \
@@ -31,5 +31,8 @@ RUN wget https://github.com/bazelbuild/buildtools/releases/latest/download/build
     && mv /root/.hoogle /home/containeruser/ \
     && chown -R containeruser:containeruser /home/containeruser/
 USER containeruser
+ENV USER containeruser
 ENV PATH="/home/containeruser/.local/bin:${PATH}"
+RUN curl -L https://nixos.org/nix/install | sh \
+    && source /home/containeruser/.nix-profile/etc/profile.d/nix.sh
 ENV SHELL /bin/bash
