@@ -11,86 +11,20 @@ stages:
     pool:
       vmImage: 'ubuntu-18.04'
     steps:
-    - task: CacheBeta@0
-      displayName: Download stack root cache
-      inputs:
-        key: stack-root | $(Agent.OS) | stack.yaml | package.yaml
-        path: '.stack-root-cache'
-        cacheHitVar: 'ROOT_CACHE_HIT'
     - script: |
-        mkdir -p $STACK_ROOT
-        tar -xf .stack-root-cache/stack-root.tar.gz -C /
-      displayName: Extract stack root cache
-      condition: eq(variables.ROOT_CACHE_HIT, 'true')
-    - task: CacheBeta@0
-      displayName: Download stack work cache
-      inputs:
-        key: stack-work | $(Agent.OS) | stack.yaml | package.yaml
-        path: '.stack-work-cache'
-        cacheHitVar: 'WORK_CACHE_HIT'
+        bazel build -s //app:impatience-exe
+      displayName: Build server binary
     - script: |
-        mkdir -p .stack-work
-        tar -xf .stack-work-cache/stack-work.tar.gz
-      displayName: Extract stack work cache
-      condition: eq(variables.WORK_CACHE_HIT, 'true')
-    - script: |
-        wget -O $HOME/purescript.tar.gz https://github.com/purescript/purescript/releases/latest/download/linux64.tar.gz
-        tar -xvf $HOME/purescript.tar.gz -C $HOME/
-        chmod a+x $HOME/purescript
-        PATH=$HOME/purescript:$PATH
-        sudo npm install -g --unsafe-perm spago terser
-        cd site
-        sudo chown -R $USER:$GROUP ~/.config
-        spago bundle-app --to ../static/app.js
-        cd ..
-        terser static/app.js --compress --mangle -o static/app.js
-      displayName: Build static js
-    - script: |
-        mkdir -p ~/.local/bin
-        mkdir -p $STACK_ROOT
-        curl -L https://get.haskellstack.org/stable/linux-x86_64.tar.gz | \
-          tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
-      displayName: Install stack
-    - script: |
-        export PATH=$HOME/.local/bin:$PATH
-        stack setup
-      displayName: Install GHC
-    - script: |
-        sudo apt-get install -y libpq-dev
-        export PATH=$HOME/.local/bin:$PATH
-        mkdir -p bin
-        mkdir -p bin/lib
-        curl -sSL https://raw.github.com/ndmitchell/hlint/master/misc/run.sh | sh -s src
-        stack build --copy-bins --local-bin-path ./bin
-        ldd --version
-        ldd ./bin/impatience-exe | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -v '{}' bin/lib
-      displayName: Build Non-Tests
-    - publish: bin/
-      artifact: exe
-    - script: |
-        export PATH=$HOME/.local/bin:$PATH
-        curl -sSL https://raw.github.com/ndmitchell/hlint/master/misc/run.sh | sh -s .
-        curl -sSL https://raw.github.com/ndmitchell/weeder/master/misc/run.sh | sh -s . --build
-        stack build --test --no-run-tests --coverage
-        cp $(stack path --dist-dir)/build/impatience-test/impatience-test ./bin/impatience-test
-      displayName: Build Tests
-    - publish: bin/impatience-test
-      artifact: test-exe
-    - script: |
-        mkdir -p .stack-root-cache
-        tar -cf .stack-root-cache/stack-root.tar.gz $STACK_ROOT
-      displayName: Build stack root cache
-      condition: eq(variables.ROOT_CACHE_HIT, 'false')
-    - script: |
-        mkdir -p .stack-work-cache
-        tar -cf .stack-work-cache/stack-work.tar.gz .stack-work
-      displayName: Build stack work cache
-      condition: eq(variables.WORK_CACHE_HIT, 'false')
+        bazel build //:impatience.tar
+      displayName: Build container
+    - publish: bazel-bin/app/impatience-exe
+      artifact: impatience-exe
+    - publish: bazel-bin/impatience.tar
+      artifact: impatience.tar
     - publish: deploycfg
       artifact: manifests
 - stage: Test
   displayName: Test
-  dependsOn: Build
   jobs:
   - job: ApiTest
     pool:
@@ -100,51 +34,15 @@ stages:
     - download: current
       artifact: test-exe
     - script: |
-        export PATH=$HOME/.local/bin:$PATH
-        cp $(Pipeline.Workspace)/test-exe/impatience-test .
-        chmod 777 ./impatience-test
-        ./impatience-test --xml=tasty-results.xml
-#       hpc report impatience-test.tix
+        bazel test --test_summary=detailed --test_output=all //...:all
       displayName: Execute Tests # (w/coverage)
-    - task: PublishTestResults@2
-      displayName: Publish tasty xml results
-      condition: always()
-      inputs:
-        testResultsFormat: 'JUnit'
-        testResultsFiles: 'tasty-results.xml'
-  - job: SiteTest
-    pool:
-      vmImage: 'ubuntu-18.04'
-    steps:
-    - script: |
-        wget -O $HOME/purescript.tar.gz https://github.com/purescript/purescript/releases/latest/download/linux64.tar.gz
-        tar -xvf $HOME/purescript.tar.gz -C $HOME/
-        chmod a+x $HOME/purescript
-        PATH=$HOME/purescript:$PATH
-        sudo npm install -g --unsafe-perm spago
-        cd site
-        sudo chown -R $USER:$GROUP ~/.config
-        spago test
+    # TODO: publish test results
   - job: ImageTest
     pool:
       vmImage: 'ubuntu-18.04'
     steps:
-    - download: current
-      artifact: test-exe
-    - download: current
-      artifact: exe
     - script: |
-        cp Dockerfile Dockerfile.test
-        mkdir -p bin
-        cp $(Pipeline.Workspace)/test-exe/impatience-test bin/impatience-test
-        cp -r $(Pipeline.Workspace)/exe/. bin/
-        chmod -R 777 ./bin
-        echo "COPY bin/impatience-test /app/impatience-test" >> Dockerfile.test
-        echo "ENV TASTY_ANSI_TRICKS=false" >> Dockerfile.test
-        echo "ENV TASTY_HIDE_SUCCESSES=true" >> Dockerfile.test
-        ./container-root.sh
-        docker build -t "test-image" -f Dockerfile.test .
-        docker run test-image impatience-test
+        bazel test --test_summary=detailed --test_output=all //test:container_command_tests
       displayName: Execute Tests In Image
 - stage: Push
   displayName: Push images
@@ -152,28 +50,21 @@ stages:
   jobs:
   - job: Push
     displayName: Push image to registry
-    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+    # condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
     pool:
       vmImage: 'ubuntu-18.04'
     steps:
     - download: current
-      artifact: exe
+      artifact: impatience.tar
     - script: |
-        mkdir -p bin
-        cp -r $(Pipeline.Workspace)/exe/. bin/
-        chmod -R 777 ./bin
-        curl -sSL https://github.com/upx/upx/releases/download/v3.95/upx-3.95-amd64_linux.tar.xz -o upx.tar.xz
-        tar -xf upx.tar.xz
-        ./upx-3.95-amd64_linux/upx --best --ultra-brute bin/impatience-exe
-        ./container-root.sh
-      displayName: Compress executable
+        docker load -i $(Pipeline.Workspace)/impatience.tar
+      displayName: Load Image
     - task: Docker@2
-      displayName: Build and Push Image
+      displayName: Push Image
       inputs:
         containerRegistry: 'impatienceregistry'
         repository: 'impatience'
-        command: 'buildAndPush'
-        Dockerfile: '**/Dockerfile'
+        command: 'push'
         tags: $(tag)
 - stage: Deploy
   displayName: Deploy to k8s
