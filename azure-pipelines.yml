@@ -13,12 +13,13 @@ stages:
     steps:
     - script: |
         curl https://nixos.org/nix/install | sh
-        . /home/vsts/.nix-profile/etc/profile.d/nix.sh
       displayName: Install Nix
     - script: |
+        source ~/.nix-profile/etc/profile.d/nix.sh
         bazel build -s //app:impatience-exe
       displayName: Build server binary
     - script: |
+        source ~/.nix-profile/etc/profile.d/nix.sh
         bazel build //:impatience.tar
       displayName: Build container
     - publish: bazel-bin/app/impatience-exe
@@ -39,9 +40,9 @@ stages:
       artifact: test-exe
     - script: |
         curl https://nixos.org/nix/install | sh
-        . /home/vsts/.nix-profile/etc/profile.d/nix.sh
       displayName: Install Nix
     - script: |
+        source ~/.nix-profile/etc/profile.d/nix.sh
         bazel test --test_summary=detailed --test_output=all //...:all
       displayName: Execute Tests # (w/coverage)
     # TODO: publish test results
@@ -54,6 +55,7 @@ stages:
         . /home/vsts/.nix-profile/etc/profile.d/nix.sh
       displayName: Install Nix
     - script: |
+        source ~/.nix-profile/etc/profile.d/nix.sh
         bazel test --test_summary=detailed --test_output=all //test:container_command_tests
       displayName: Execute Tests In Image
 - stage: Push
