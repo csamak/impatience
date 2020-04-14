@@ -44,7 +44,8 @@ container_image(
         packages["libsasl2-2"],
         packages["libstdc++6"],
         packages["libtasn1-6"],
-        packages["libtinfo5"],
+        packages["libtinfo5"],  # if built on stretch
+        packages["libtinfo6"],
         packages["zlib1g"],
     ],
     entrypoint = ["/impatience-exe"],

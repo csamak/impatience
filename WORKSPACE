@@ -166,9 +166,9 @@ load("@io_bazel_rules_docker//container:container.bzl", "container_pull")
 
 container_pull(
     name = "base_image",
-    digest = "sha256:2b0a8e9a13dcc168b126778d9e947a7081b4d2ee1ee122830d835f176d0e2a70",
+    digest = "sha256:61b11e41972578b2417e4e9c9b0a3057b896bd9bd2e3bda961c4b784ea3987ba",
     registry = "gcr.io",
-    repository = "distroless/base",
+    repository = "distroless/base-debian10",
 )
 
 http_archive(
@@ -183,10 +183,10 @@ load("@distroless//package_manager:package_manager.bzl", "dpkg_list", "dpkg_src"
 package_manager_repositories()
 
 dpkg_src(
-    name = "debian_stretch",
+    name = "debian_buster",
     arch = "amd64",
-    distro = "stretch",
-    sha256 = "56537cedf58e6f08bb3eafef514a20016fbfd227850ab810c43e5ffb00f57427",
+    distro = "buster",
+    sha256 = "889681a6f709a3872833643a2ab28aa5bf4839ec5a8994cd4382f179a6521c63",
     snapshot = "20200411T143911Z",
     url = "http://snapshot.debian.org/archive",
 )
@@ -214,9 +214,10 @@ dpkg_list(
         "libstdc++6",
         "libtasn1-6",
         "libtinfo5",
+        "libtinfo6",
         "zlib1g",
     ],
     sources = [
-        "@debian_stretch//file:Packages.json",
+        "@debian_buster//file:Packages.json",
     ],
 )
