@@ -1,4 +1,4 @@
-FROM haskell:8.6.5 AS hie
+FROM haskell:8.8.3 AS hie
 ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
 COPY . /src
@@ -6,12 +6,12 @@ WORKDIR /src
 RUN set -x && git clone https://github.com/haskell/haskell-ide-engine --recurse-submodules \
     && cd haskell-ide-engine \
     # && sed -i "s|lts-14.27 # last lts with GHC 8.6.5|nightly-2020-02-17 # GHC 8.8.2 |g" install/shake.yaml \
-    && stack --resolver lts-15.8 setup \
-    && stack --resolver lts-15.8 install hoogle \
+    && stack setup \
+    && stack install hoogle \
     && stack ./install.hs hie-8.6.5 \
     && stack ./install.hs data
 
-FROM haskell:8.8.2
+FROM haskell:8.8.3
 COPY --from=hie /root/.local/bin /usr/bin
 COPY --from=hie /root/.hoogle /root/.hoogle
 RUN set -x && apt-get update \
