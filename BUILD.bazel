@@ -53,4 +53,5 @@ container_image(
         ":impatience.dhall",
         "//:compressed",
     ],
+    repository = "impatience",
 )
