@@ -8,6 +8,7 @@ RUN set -x && git clone https://github.com/haskell/haskell-ide-engine --recurse-
     # && sed -i "s|lts-14.27 # last lts with GHC 8.6.5|nightly-2020-02-17 # GHC 8.8.2 |g" install/shake.yaml \
     && stack setup \
     && stack install hoogle \
+    && stack --resolver lts-14.27 setup \
     && stack ./install.hs hie-8.6.5 \
     && stack ./install.hs data
 
