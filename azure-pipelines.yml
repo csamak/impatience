@@ -27,28 +27,11 @@ stages:
       artifact: image
     - publish: deploycfg
       artifact: manifests
-  - job: ApiTest
-    pool:
-      vmImage: 'ubuntu-18.04'
-    steps:
     - script: |
-        curl https://nixos.org/nix/install | sh
-      displayName: Install Nix
-    - script: |
-        source ~/.nix-profile/etc/profile.d/nix.sh
         bazel test -j 100 --remote_cache=$(remoteCache) --test_summary=detailed --test_output=all //...:all
       displayName: Execute Tests # (w/coverage)
     # TODO: publish test results
-  - job: ImageTest
-    pool:
-      vmImage: 'ubuntu-18.04'
-    steps:
     - script: |
-        curl https://nixos.org/nix/install | sh
-        . /home/vsts/.nix-profile/etc/profile.d/nix.sh
-      displayName: Install Nix
-    - script: |
-        source ~/.nix-profile/etc/profile.d/nix.sh
         bazel test -j 100 --remote_cache=$(remoteCache) --test_summary=detailed --test_output=all //test:container_command_tests
       displayName: Execute Tests In Image
 - stage: Push
