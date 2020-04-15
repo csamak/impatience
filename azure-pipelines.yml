@@ -2,8 +2,8 @@ variables:
   tag: '$(Build.BuildId)'
 
 stages:
-- stage: Build
-  displayName: Build
+- stage: BuildTest
+  displayName: Build and Test
   jobs:
   - job: Build
     pool:
@@ -27,9 +27,6 @@ stages:
       artifact: image
     - publish: deploycfg
       artifact: manifests
-- stage: Test
-  displayName: Test
-  jobs:
   - job: ApiTest
     pool:
       vmImage: 'ubuntu-18.04'
@@ -56,11 +53,11 @@ stages:
       displayName: Execute Tests In Image
 - stage: Push
   displayName: Push images
-  dependsOn: Build
+  dependsOn: BuildTest
   jobs:
   - job: Push
     displayName: Push image to registry
-    # condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
     pool:
       vmImage: 'ubuntu-18.04'
     steps:
@@ -80,7 +77,7 @@ stages:
 - stage: Deploy
   displayName: Deploy to k8s
   dependsOn:
-  - Test
+  - BuildTest
   - Push
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   jobs:
