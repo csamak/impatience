@@ -194,14 +194,14 @@ dpkg_src(
 dpkg_list(
     name = "package_bundle",
     packages = [
-        "libcomerr2",
+        "libcom-err2",
         "libffi6",
         "libgcc1",
         "libgmp10",
         "libgnutls30",
         "libgssapi-krb5-2",
         "libhogweed4",
-        "libidn11",
+        "libidn2-0",
         "libk5crypto3",
         "libkeyutils1",
         "libkrb5-3",
@@ -215,6 +215,7 @@ dpkg_list(
         "libtasn1-6",
         "libtinfo5",
         "libtinfo6",
+        "libunistring2",
         "zlib1g",
     ],
     sources = [
