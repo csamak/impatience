@@ -11,9 +11,11 @@ RUN set -x && git clone https://github.com/haskell/haskell-ide-engine --recurse-
     && stack clean --full \
     && rm -rf ~/.stack \
     && stack --resolver lts-14.27 setup \
-    && stack ./install.hs hie-8.6.5
+    && stack ./install.hs hie-8.6.5 \
     # disable for disk space during build
     # && stack ./install.hs data
+    && stack clean --full \
+    && rm -rf ~/.stack
 
 FROM haskell:8.8.3
 COPY --from=hie /root/.local/bin /usr/bin
