@@ -40,6 +40,5 @@ RUN wget https://github.com/bazelbuild/buildtools/releases/latest/download/build
 USER containeruser
 ENV USER containeruser
 ENV PATH="/home/containeruser/.local/bin:${PATH}"
-RUN curl -L https://nixos.org/nix/install | sh \
-    && source /home/containeruser/.nix-profile/etc/profile.d/nix.sh
+RUN curl -L https://nixos.org/nix/install | sh
 ENV SHELL /bin/bash
