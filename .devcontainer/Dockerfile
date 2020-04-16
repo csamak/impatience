@@ -19,7 +19,7 @@ RUN set -x && git clone https://github.com/haskell/haskell-ide-engine --recurse-
 
 FROM haskell:8.8.3
 COPY --from=hie /root/.local/bin /usr/bin
-COPY --from=hie /root/.hoogle /root/.hoogle
+# COPY --from=hie /root/.hoogle /root/.hoogle
 RUN set -x && apt-get update \
     && curl "https://raw.githubusercontent.com/microsoft/vscode-dev-containers/master/script-library/common-debian.sh" \
     | bash -s "false" "containeruser" \
@@ -35,7 +35,7 @@ RUN wget https://github.com/bazelbuild/buildtools/releases/latest/download/build
     && mv bazel-2.2.0-linux-x86_64 bazel && chmod +x bazel && mv bazel /usr/bin/ \
     && wget https://github.com/bazelbuild/bazel-watcher/releases/latest/download/ibazel_linux_amd64 \
     && mv ibazel_linux_amd64 ibazel && chmod +x ibazel && mv ibazel /usr/bin/ \
-    && mv /root/.hoogle /home/containeruser/ \
+#    && mv /root/.hoogle /home/containeruser/ \
     && chown -R containeruser:containeruser /home/containeruser/
 USER containeruser
 ENV USER containeruser
