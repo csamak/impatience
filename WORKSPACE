@@ -57,8 +57,6 @@ load("@psc-package-imports//:packages.bzl", "purescript_import_packages")
 
 purescript_import_packages(base_attribute_path = "purescriptPackages")
 
-# SWITCHED
-
 http_archive(
     name = "rules_haskell",
     sha256 = "56a8e6337df8802f1e0e7d2b3d12d12d5d96c929c8daecccc5738a0f41d9c1e4",
