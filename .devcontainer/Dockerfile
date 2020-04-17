@@ -14,7 +14,7 @@ RUN set -x && apt-get install -y curl libicu-dev libncurses-dev libgmp-dev \
     && rm -rf ~/.stack \
     && stack --resolver lts-14.27 setup \
     && stack ./install.hs hie-8.6.5 \
-    && stack ./install.hs data
+    && stack ./install.hs data \
     # disable for disk space during build
     && stack clean --full \
     && rm -rf ~/.stack
