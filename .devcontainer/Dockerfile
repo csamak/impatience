@@ -23,13 +23,16 @@ RUN set -x && apt-get update \
 FROM debian:10
 COPY --from=hie /root/.local/bin /usr/bin
 COPY --from=hie /root/.hoogle /root/.hoogle
-RUN set -x && apt-get update \
+ARG REMOTE_CACHE
+RUN set -x && echo "deb http://downloads.haskell.org/debian buster main" | tee -a /etc/apt/sources.list \
+    && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys BA3CBA3FFE22B574 \
+    && apt-get update \
     && apt-get install -y curl \
     && curl -sSL https://get.haskellstack.org/ | sh \
     && curl "https://raw.githubusercontent.com/microsoft/vscode-dev-containers/master/script-library/common-debian.sh" \
     | bash -s "false" "containeruser" \
     && curl -sL https://deb.nodesource.com/setup_13.x | bash - \
-    && apt-get install -y nodejs libicu-dev libncurses-dev libgmp-dev bzip2 libpq-dev postgresql-client upx vim \
+    && apt-get install -y nodejs libicu-dev libncurses-dev libgmp-dev bzip2 libpq-dev libtinfo5 postgresql-client upx vim ghc-8.6.5 \
     && wget --quiet -O - https://github.com/dhall-lang/dhall-haskell/releases/download/1.31.0/dhall-lsp-server-1.0.6-x86_64-linux.tar.bz2 \
     | tar -xjvf - --strip-components 2 -C /usr/local/bin/ ./bin/dhall-lsp-server \
     && rm -rf /var/lib/apt/lists/*
@@ -43,6 +46,9 @@ RUN wget https://github.com/bazelbuild/buildtools/releases/latest/download/build
     && chown -R containeruser:containeruser /home/containeruser/
 USER containeruser
 ENV USER containeruser
-ENV PATH="/home/containeruser/.local/bin:${PATH}"
-RUN curl -L https://nixos.org/nix/install | sh
+ENV PATH="/home/containeruser/.local/bin:/opt/ghc/bin:${PATH}"
+RUN curl -L https://nixos.org/nix/install | sh \
+    && echo ". /home/containeruser/.nix-profile/etc/profile.d/nix.sh" >> /home/containeruser/.bashrc \
+    # lower jobs after https://bazel.build/roadmaps/remote-execution.html#async-action-execution
+    && echo "build -j 50 --remote_cache=$REMOTE_CACHE" >> /home/containeruser/.bazelrc
 ENV SHELL /bin/bash

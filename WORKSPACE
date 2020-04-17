@@ -72,6 +72,10 @@ load("@rules_haskell//haskell:toolchain.bzl", "rules_haskell_toolchains")
 
 rules_haskell_toolchains(version = "8.6.5")
 
+load("@rules_haskell//tools:repositories.bzl", "rules_haskell_worker_dependencies")
+
+rules_haskell_worker_dependencies()
+
 http_archive(
     name = "alex",
     build_file_content = """

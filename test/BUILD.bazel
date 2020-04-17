@@ -2,7 +2,10 @@ load("@rules_haskell//haskell:defs.bzl", "haskell_test")
 load("@io_bazel_rules_docker//container:container.bzl", "container_image")
 load("@io_bazel_rules_docker//contrib:test.bzl", "container_test")
 
-package(default_testonly = 1)
+package(
+    default_testonly = 1,
+    default_visibility = ["//visibility:public"],
+)
 
 # TODO: Why does this have to be in a directory above Test?
 haskell_test(

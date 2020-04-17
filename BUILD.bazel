@@ -1,5 +1,6 @@
 load("@io_bazel_rules_docker//container:container.bzl", "container_image")
 load("@package_bundle//file:packages.bzl", "packages")
+load("@rules_haskell//haskell:defs.bzl", "haskell_repl")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -53,5 +54,14 @@ container_image(
     files = [
         ":impatience.dhall",
         "//:compressed",
+    ],
+)
+
+haskell_repl(
+    name = "hie-bios",
+    testonly = 1,  # need to get test deps too
+    deps = [
+        "//app:impatience-exe",
+        "//test:impatience_server_test",
     ],
 )
