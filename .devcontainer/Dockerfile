@@ -24,10 +24,10 @@ FROM debian:10
 COPY --from=hie /root/.local/bin /usr/bin
 COPY --from=hie /root/.hoogle /root/.hoogle
 ARG REMOTE_CACHE
-RUN set -x && echo "deb http://downloads.haskell.org/debian buster main" | tee -a /etc/apt/sources.list \
+RUN set -x && apt-get update && apt-get install gnupg \
+    && echo "deb http://downloads.haskell.org/debian buster main" | tee -a /etc/apt/sources.list \
     && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys BA3CBA3FFE22B574 \
-    && apt-get update \
-    && apt-get install -y curl \
+    && apt-get update && apt-get install -y curl \
     && curl -sSL https://get.haskellstack.org/ | sh \
     && curl "https://raw.githubusercontent.com/microsoft/vscode-dev-containers/master/script-library/common-debian.sh" \
     | bash -s "false" "containeruser" \
