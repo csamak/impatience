@@ -11,6 +11,7 @@ RUN set -x && apt-get update \
     # && sed -i "s|lts-14.27 # last lts with GHC 8.6.5|nightly-2020-02-17 # GHC 8.8.2 |g" install/shake.yaml \
     && stack setup \
     && stack install hoogle \
+    && stack install brittany \
     && stack clean --full \
     && rm -rf ~/.stack \
     && stack --resolver lts-14.27 setup \
