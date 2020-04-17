@@ -3,7 +3,8 @@ ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
 COPY . /src
 WORKDIR /src
-RUN set -x && apt-get install -y curl libicu-dev libncurses-dev libgmp-dev \
+RUN set -x && apt-get update \
+    && apt-get install -y curl libicu-dev libncurses-dev libgmp-dev \
     && curl -sSL https://get.haskellstack.org/ | sh \
     && git clone https://github.com/haskell/haskell-ide-engine --recurse-submodules \
     && cd haskell-ide-engine \
