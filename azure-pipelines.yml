@@ -11,13 +11,14 @@ stages:
     steps:
     - script: |
         curl https://nixos.org/nix/install | sh
-        source ~/.nix-profile/etc/profile.d/nix.sh
       displayName: Install Nix
     - script: |
+        source ~/.nix-profile/etc/profile.d/nix.sh
         # lower jobs after https://bazel.build/roadmaps/remote-execution.html#async-action-execution
         bazel build -j 100 --remote_cache=$(remoteCache) //app:impatience-exe
       displayName: Build server binary
     - script: |
+        source ~/.nix-profile/etc/profile.d/nix.sh
         bazel build -j 100 --remote_cache=$(remoteCache) //:impatience.tar
       displayName: Build container
     - publish: bazel-bin/app/impatience-exe
