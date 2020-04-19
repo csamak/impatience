@@ -6,6 +6,8 @@
     "workspaceFolder": "/workspace",
     "extensions": [
         "alanz.vscode-hie-server",
+        "BazelBuild.vscode-bazel",
+        "bbenoist.Nix",
         "justusadam.language-haskell",
         "ms-azure-devops.azure-pipelines",
         "nwolverson.ide-purescript",

@@ -9,6 +9,10 @@ import           Network.Wai.Application.Static
 import           Network.Wai.Test
 import           Hedgehog
 import qualified Hedgehog.Gen                  as Gen
+import           Test.Tasty
+import           Test.Tasty.Hedgehog
+
+main = defaultMain $ testProperty "All served JS files are parseable" hprop_jsParseable
 
 -- hardcoded to avoid depending on the filesystem
 jsLocations = ["impatience.js"]

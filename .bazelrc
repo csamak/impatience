@@ -1,0 +1,7 @@
+build:ci --verbose_failures
+
+build --worker_sandboxing --define use_worker=True
+
+test --test_summary=terse --test_output=errors --test_env=LANG=C.UTF-8 --test_env=TASTY_COLOR=always
+
+try-import .bazelrc.local

@@ -2,42 +2,46 @@ trigger:
   batch: true
   branches:
     include:
-    - master
+      - master
   paths:
     include:
-    - stack.yaml
-    - package.yaml
-    - .devcontainer/Dockerfile
+      - .devcontainer/Dockerfile
 pr: none
 
 resources:
-- repo: self
+  - repo: self
 
 variables:
-  dockerRegistryServiceConnection: 'ddf43e4c-0fd8-43a6-b1c7-0ca9a0d9e8b1'
-  imageRepository: 'impatiencedevenv'
-  containerRegistry: 'haskell.azurecr.io'
-  tag: '$(Build.BuildId)'
+  dockerRegistryServiceConnection: "ddf43e4c-0fd8-43a6-b1c7-0ca9a0d9e8b1"
+  imageRepository: "impatiencedevenv"
+  containerRegistry: "haskell.azurecr.io"
+  tag: "$(Build.BuildId)"
 
 stages:
-- stage: Build
-  displayName: Build and push stage
-  jobs:  
-  - job: Build
-    displayName: Build
-    timeoutInMinutes: 0
-    pool:
-      vmImage: 'ubuntu-latest'
-    steps:
-    - task: Docker@2
-      displayName: Build and push an image to container registry
-      inputs:
-        command: buildAndPush
-        buildContext: '$(Build.SourcesDirectory)'
-        repository: 'impatiencedevenv'
-        dockerfile: '$(Build.SourcesDirectory)/.devcontainer/Dockerfile'
-        containerRegistry: $(dockerRegistryServiceConnection)
-        # Consider removing the tag when retention policies are out of preview
-        tags: |
-          $(tag)
-          $(Build.SourceBranchName)
+  - stage: Build
+    displayName: Build and push stage
+    jobs:
+      - job: Build
+        displayName: Build
+        timeoutInMinutes: 0
+        pool:
+          vmImage: "ubuntu-latest"
+        steps:
+          - task: Docker@2
+            displayName: Build image image
+            inputs:
+              command: "build"
+              arguments: "--build-arg REMOTE_CACHE=$(remoteCache)"
+              repository: "impatiencedevenv"
+              dockerfile: "$(Build.SourcesDirectory)/.devcontainer/Dockerfile"
+              containerRegistry: "$(dockerRegistryServiceConnection)"
+              # Consider removing the tag when retention policies are out of preview
+              tags: |
+                $(tag)
+                $(Build.SourceBranchName)
+          - task: Docker@2
+            displayName: Push image
+            inputs:
+              containerRegistry: "$(dockerRegistryServiceConnection)"
+              repository: "impatiencedevenv"
+              command: "push"

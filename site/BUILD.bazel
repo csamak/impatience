@@ -1,0 +1,26 @@
+load("@com_habito_rules_purescript//purescript:purescript.bzl", "purescript_bundle", "purescript_toolchain")
+
+package(default_visibility = ["//visibility:public"])
+
+purescript_toolchain(
+    name = "purescript",
+    psci_support = "@psc-package//:psci-support.purs",
+    tools = [
+        "@nixpkgs_purescript//:bin",
+        "@nixpkgs_tar//:bin",
+    ],
+    version = "0.13.6",
+)
+
+purescript_bundle(
+    name = "impatience-bundle",
+    srcs = [],
+    entry_point_module = "Main",
+    main_module = "Main",
+    deps = [
+        "//site/src:impatience",
+        "@psc-package//:console",
+        "@psc-package//:effect",
+        "@psc-package//:prelude",
+    ],
+)

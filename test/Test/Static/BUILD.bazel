@@ -1,0 +1,23 @@
+load("@rules_haskell//haskell:defs.bzl", "haskell_test")
+
+haskell_test(
+    name = "Static",
+    srcs = glob(["*.hs"]),
+    data = glob(["*.hs"]),  # for hedgehog source annotation
+    extra_srcs = [
+        "//site:impatience-bundle",
+    ],
+    main_function = "Test.Static.Entries.main",
+    deps = [
+        "//src/Static",
+        "@stackage//:base",
+        "@stackage//:bytestring",
+        "@stackage//:hedgehog",
+        "@stackage//:language-javascript",
+        "@stackage//:tasty",
+        "@stackage//:tasty-hedgehog",
+        "@stackage//:wai-app-static",
+        "@stackage//:wai-extra",
+        "@stackage//:zlib",
+    ],
+)

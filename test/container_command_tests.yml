@@ -1,0 +1,5 @@
+schemaVersion: "2.0.0"
+commandTests:
+  - name: "Test binary succeeds"
+    command: "/impatience_server_test"
+    exitCode: 0

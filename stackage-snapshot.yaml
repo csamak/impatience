@@ -1,6 +1,6 @@
-resolver: nightly-2020-02-17
-
-extra-deps:
+resolver: lts-14.27
+packages:
   - hasql-th-0.4.0.4@sha256:13417fd50505b315238b22a24d280d057c493a34de3aa7360722955e0b0ea208,4398
   - fast-builder-0.1.2.0@sha256:d01db8a5f1ac262e2db0375c47e46660c67ad4145bef64cc7303ade096e461ee,2801
   - headed-megaparsec-0.1.0.2@sha256:51db1cfed48fbe6af6b20365a53b434cd272e8829292a92bec88cf23ae602303,1569
+  - template-haskell-compat-v0208-0.1.2.1

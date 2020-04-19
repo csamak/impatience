@@ -1,0 +1,12 @@
+load("@com_habito_rules_purescript//purescript:purescript.bzl", "purescript_library")
+
+# TODO: make a test rule
+purescript_library(
+    name = "impatience",
+    srcs = glob(["*.purs"]),
+    deps = [
+        "@psc-package//:console",
+        "@psc-package//:effect",
+        "@psc-package//:prelude",
+    ],
+)
