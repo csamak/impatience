@@ -8,7 +8,7 @@ spec:
   replicas: 3
   revisionHistoryLimit: 10
   strategy:
-    type: "RollingUpdate"  
+    type: "RollingUpdate"
   selector:
     matchLabels:
       app: impatience
@@ -19,14 +19,14 @@ spec:
     spec:
       containers:
         - name: impatience
-          image: impatience.azurecr.io/impatience
+          image: csamak/impatience
           imagePullPolicy: Always
           env:
-          - name: IMPATIENCE_CONN_STRING
-            valueFrom:
-              secretKeyRef:
-                name: impatience-conn
-                key: conn-string
+            - name: IMPATIENCE_CONN_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: impatience-conn
+                  key: conn-string
           livenessProbe:
             httpGet:
               path: /annieareyouok
@@ -44,4 +44,4 @@ spec:
               name: "external"
               protocol: "TCP"
           args:
-          - impatience-exe
+            - impatience-exe

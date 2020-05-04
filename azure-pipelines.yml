@@ -48,7 +48,7 @@ stages:
       artifact: image
     - script: |
         docker load -i $(Pipeline.Workspace)/image/impatience.tar
-        docker tag bazel:impatience impatience.azurecr.io/impatience:$(tag)
+        docker tag bazel:impatience csamak/impatience:$(tag)
       displayName: Load Image
     - task: Docker@2
       displayName: Push Image
@@ -74,15 +74,6 @@ stages:
         deploy:
           steps:
           - task: KubernetesManifest@0
-            displayName: Create image pull secret
-            inputs:
-              action: createSecret
-              kubernetesServiceConnection: impatienceKubernetes
-              namespace: default
-              secretType: dockerRegistry
-              secretName: impatiencepullsecret
-              dockerRegistryEndpoint: impatienceregistry
-          - task: KubernetesManifest@0
             displayName: Create connection string secret
             inputs:
               action: createSecret
@@ -100,5 +91,4 @@ stages:
               manifests: |
                 $(Pipeline.Workspace)/manifests/dev.yml
                 $(Pipeline.Workspace)/manifests/service.yml
-              imagePullSecrets: 'impatiencepullsecret'
-              containers: impatience.azurecr.io/impatience:$(tag)
+              containers: csamak/impatience:$(tag)
