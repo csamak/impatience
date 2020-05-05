@@ -54,7 +54,7 @@ stages:
       displayName: Push Image
       inputs:
         containerRegistry: 'impatienceregistry'
-        repository: 'impatience'
+        repository: 'csamak/impatience'
         command: 'push'
         tags: $(tag)
 - stage: Deploy
