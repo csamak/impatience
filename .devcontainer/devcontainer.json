@@ -4,6 +4,7 @@
     "dockerComposeFile": "docker-compose.yml",
     "service": "dev",
     "workspaceFolder": "/workspace",
+    "containerUser": "containeruser",
     "extensions": [
         "alanz.vscode-hie-server",
         "BazelBuild.vscode-bazel",

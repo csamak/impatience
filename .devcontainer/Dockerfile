@@ -6,8 +6,8 @@ WORKDIR /src
 RUN set -x && apt-get update \
     && apt-get install -y curl libicu-dev libncurses-dev libgmp-dev \
     && curl -sSL https://get.haskellstack.org/ | sh \
-    && git clone https://github.com/haskell/haskell-ide-engine --recurse-submodules \
-    && cd haskell-ide-engine \
+    && git clone https://github.com/haskell/haskell-language-server --recurse-submodules \
+    && cd haskell-language-server \
     # && sed -i "s|lts-14.27 # last lts with GHC 8.6.5|nightly-2020-02-17 # GHC 8.8.2 |g" install/shake.yaml \
     && stack setup \
     && stack install hoogle \
@@ -50,6 +50,8 @@ ENV USER containeruser
 ENV PATH="/home/containeruser/.local/bin:/opt/ghc/bin:${PATH}"
 RUN curl -L https://nixos.org/nix/install | sh \
     && echo ". /home/containeruser/.nix-profile/etc/profile.d/nix.sh" >> /home/containeruser/.bashrc \
+    # not sure why this is needed
+    && echo "PATH=/opt/ghc/bin:$PATH" >> /home/containeruser/.bashrc \
     # lower jobs after https://bazel.build/roadmaps/remote-execution.html#async-action-execution
     && echo "build -j 50 --remote_cache=$REMOTE_CACHE" >> /home/containeruser/.bazelrc
 ENV SHELL /bin/bash
