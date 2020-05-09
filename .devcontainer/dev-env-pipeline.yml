@@ -12,7 +12,7 @@ resources:
   - repo: self
 
 variables:
-  contianerRegistry: "impatienceregistry"
+  containerRegistry: "impatienceregistry"
   imageRepository: "csamak/impatiencedevenv"
   tag: "$(Build.BuildId)"
 
