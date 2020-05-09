@@ -60,38 +60,3 @@ stages:
         tags: |
           $(tag)
           $(Build.SourceBranchName)
-- stage: Deploy
-  displayName: Deploy to k8s
-  dependsOn:
-  - BuildTest
-  - Push
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
-  jobs:
-  - deployment: Deploy
-    displayName: Deploy to k8s
-    pool:
-      vmImage: 'ubuntu-18.04'
-    environment: 'impatience.default'
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - task: KubernetesManifest@0
-            displayName: Create connection string secret
-            inputs:
-              action: createSecret
-              kubernetesServiceConnection: impatienceKubernetes
-              namespace: default
-              secretType: generic
-              secretName: impatience-conn
-              secretArguments: --from-literal=conn-string=$(Impatience.ConnectionString)
-          - task: KubernetesManifest@0
-            displayName: Deploy to k8s cluster
-            inputs:
-              action: deploy
-              kubernetesServiceConnection: impatienceKubernetes
-              namespace: default
-              manifests: |
-                $(Pipeline.Workspace)/manifests/dev.yml
-                $(Pipeline.Workspace)/manifests/service.yml
-              containers: csamak/impatience:$(tag)
