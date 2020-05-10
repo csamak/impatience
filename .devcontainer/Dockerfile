@@ -1,4 +1,4 @@
-FROM debian:10 AS hie
+FROM debian:10 AS hls
 ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
 COPY . /src
@@ -15,15 +15,15 @@ RUN set -x && apt-get update \
     && stack clean --full \
     && rm -rf ~/.stack \
     && stack --resolver lts-14.27 setup \
-    && stack ./install.hs hie-8.6.5 \
+    && stack ./install.hs hls-8.6.5 \
     && stack ./install.hs data \
     # disable for disk space during build
     && stack clean --full \
     && rm -rf ~/.stack
 
 FROM debian:10
-COPY --from=hie /root/.local/bin /usr/bin
-COPY --from=hie /root/.hoogle /root/.hoogle
+COPY --from=hls /root/.local/bin /usr/bin
+COPY --from=hls /root/.hoogle /root/.hoogle
 ARG REMOTE_CACHE
 RUN set -x && apt-get update && apt-get install -y gnupg \
     && echo "deb http://downloads.haskell.org/debian buster main" | tee -a /etc/apt/sources.list \
