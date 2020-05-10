@@ -18,6 +18,7 @@
         "vscodevim.vim"
     ],
     "settings": {
+        "editor.formatOnSave": true,
         "languageServerHaskell.hieVariant": "haskell-language-server"
     }
 }

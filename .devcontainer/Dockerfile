@@ -44,14 +44,17 @@ RUN wget https://github.com/bazelbuild/buildtools/releases/latest/download/build
     && wget https://github.com/bazelbuild/bazel-watcher/releases/latest/download/ibazel_linux_amd64 \
     && mv ibazel_linux_amd64 ibazel && chmod +x ibazel && mv ibazel /usr/bin/ \
     && mv /root/.hoogle /home/containeruser/ \
-    && chown -R containeruser:containeruser /home/containeruser/
+    && chown -R containeruser:containeruser /home/containeruser/ \
+    # not sure why this is needed
+    && stack setup --resolver=lts-14.27 \
+    && chmod -R 777 /root
 USER containeruser
 ENV USER containeruser
 ENV PATH="/home/containeruser/.local/bin:/opt/ghc/bin:${PATH}"
 RUN curl -L https://nixos.org/nix/install | sh \
     && echo ". /home/containeruser/.nix-profile/etc/profile.d/nix.sh" >> /home/containeruser/.bashrc \
     # not sure why this is needed
-    && echo "PATH=/opt/ghc/bin:$$PATH" >> /home/containeruser/.bashrc \
+    && echo "PATH=/opt/ghc/bin:\$PATH" >> /home/containeruser/.bashrc \
     # lower jobs after https://bazel.build/roadmaps/remote-execution.html#async-action-execution
     && echo "build -j 50 --remote_cache=$REMOTE_CACHE" >> /home/containeruser/.bazelrc
 ENV SHELL /bin/bash
