@@ -15,5 +15,8 @@
         "panaeon.vscode-dhall-lsp-server",
         "panaeon.dhall-lang",
         "redhat.vscode-yaml"
-    ]
+    ],
+    "settings": {
+        "languageServerHaskell.hieVariant": "haskell-language-server"
+    }
 }
