@@ -15,12 +15,11 @@ stages:
       displayName: Install Nix
     - script: |
         source ~/.nix-profile/etc/profile.d/nix.sh
-        # lower jobs after https://bazel.build/roadmaps/remote-execution.html#async-action-execution
-        bazel build -j 100 --remote_cache=$(remoteCache) //app:impatience-exe
+        bazel build $(remoteCacheFlags) //app:impatience-exe
       displayName: Build server binary
     - script: |
         source ~/.nix-profile/etc/profile.d/nix.sh
-        bazel build -j 100 --remote_cache=$(remoteCache) //:impatience.tar
+        bazel build $(remoteCacheFlags) //:impatience.tar
       displayName: Build container
     - publish: bazel-bin/app/impatience-exe
       artifact: exe
@@ -29,11 +28,11 @@ stages:
     - publish: deploycfg
       artifact: manifests
     - script: |
-        bazel test -j 100 --remote_cache=$(remoteCache) --test_summary=detailed --test_output=all //...:all
+        bazel test $(remoteCacheFlags) --test_summary=detailed --test_output=all //...:all
       displayName: Execute Tests # (w/coverage)
     # TODO: publish test results
     - script: |
-        bazel test -j 100 --remote_cache=$(remoteCache) --test_summary=detailed --test_output=all //test:container_command_tests
+        bazel test $(remoteCacheFlags) --test_summary=detailed --test_output=all //test:container_command_tests
       displayName: Execute Tests In Image
 - stage: Push
   displayName: Push images
