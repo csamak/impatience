@@ -4,10 +4,12 @@ module Database.Statement where
 
 import           Data.Coerce                    ( coerce )
 import           Data.Int                       ( Int32 )
+import           Data.Time                      ( UTCTime )
 import           Data.Tuple.Curry               ( uncurryN )
-import           Data.Profunctor                ( dimap, lmap )
+import           Data.Profunctor                ( dimap, lmap, rmap )
+import           Data.Vector                    ( Vector, toList )
 import           Hasql.Statement                ( Statement )
-import           Hasql.TH                       ( maybeStatement, singletonStatement )
+import           Hasql.TH                       ( maybeStatement, singletonStatement, vectorStatement )
 import           Database.Types
 
 jobById :: Statement Int32 (Maybe Job)
@@ -26,6 +28,15 @@ insertJob =
         insert into jobs (ref_id, name)
         values ($1 :: text , $2 :: text)
         returning id :: int4
+        |]
+
+progressesByJob :: Statement Int32 [Progress]
+progressesByJob =
+  rmap (toList . fmap (uncurryN Progress))
+  [vectorStatement|
+        select id :: int4, job_id :: int4, completed :: int4, total :: int4, reported_time :: timestamptz
+        from progresses
+        where job_id = $1 :: int4
         |]
 
 progressById :: Statement Int32 (Maybe Progress)

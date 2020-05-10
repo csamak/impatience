@@ -26,6 +26,14 @@ Assuming the working directory is the repo root:
 (cd site && spago bundle-app --to ../static/app.js) && stack test --fast
 # Run server tests during development
 stack test --fast --file-watch
+# Build project
+bazel build 
 # Start the server and listen on port 1234
-stack exec impatience-exe
+bazel run//app:impatience-exe
+```
+
+Connecting to database:
+```
+psql -h db --user postgres
+\c impatience
 ```
