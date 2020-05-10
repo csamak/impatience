@@ -44,7 +44,10 @@ RUN wget https://github.com/bazelbuild/buildtools/releases/latest/download/build
     && wget https://github.com/bazelbuild/bazel-watcher/releases/latest/download/ibazel_linux_amd64 \
     && mv ibazel_linux_amd64 ibazel && chmod +x ibazel && mv ibazel /usr/bin/ \
     && mv /root/.hoogle /home/containeruser/ \
-    && chown -R containeruser:containeruser /home/containeruser/
+    && chown -R containeruser:containeruser /home/containeruser/ \
+    # not sure why this is needed
+    && stack setup --resolver=lts-14.27 \
+    && chmod -R 777 /root
 USER containeruser
 ENV USER containeruser
 ENV PATH="/home/containeruser/.local/bin:/opt/ghc/bin:${PATH}"
