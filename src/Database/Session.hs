@@ -13,6 +13,9 @@ jobById i = statement i Statement.jobById
 insertJob :: Job -> Session Int32
 insertJob j = statement j Statement.insertJob
 
+progressesByJob :: Int32 -> Session [Progress]
+progressesByJob j = statement j Statement.progressesByJob
+
 progressById :: Int32 -> Session (Maybe Progress)
 progressById i = statement i Statement.progressById
 

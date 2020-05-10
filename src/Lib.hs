@@ -76,6 +76,7 @@ instance FromJSON Progress
 type API = "annieareyouok" :> Get '[ HTML] Html
        :<|> "job" :> Capture "id" Int32 :> Get '[ JSON] Job
        :<|> "job" :> ReqBody '[JSON] Job :> Post '[ JSON] Int32
+       :<|> "job" :> Capture "id" Int32 :> "progresses" :> Get '[ JSON] [Progress]
        :<|> "progress" :> Capture "id" Int32 :> Get '[ JSON] Progress
        :<|> "progress" :> ReqBody '[JSON] Progress :> Post '[ JSON] Int32
        :<|> "static" :> Raw
@@ -107,6 +108,7 @@ server conn =
     :<|> pure annie
     :<|> job conn
     :<|> newJob conn
+    :<|> jobProgresses conn
     :<|> progress conn
     :<|> newProgress conn
     :<|> serveDirectoryWith jsSettings
@@ -135,6 +137,11 @@ newJob :: Connection -> Job -> Handler Int32
 newJob conn j = do
   newId <- liftIO $ Session.run (insertJob j) conn
   maybe (throwError err404) pure $ rightToMaybe newId
+
+jobProgresses :: Connection -> Int32 -> Handler [Progress]
+jobProgresses conn id = do 
+  found <- liftIO $ Session.run (progressesByJob id) conn
+  maybe (throwError err404) pure $ rightToMaybe found
 
 progress :: Connection -> Int32 -> Handler Progress
 progress conn i = do

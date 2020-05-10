@@ -136,6 +136,7 @@ stack_snapshot(
         "time",
         "transformers",
         "tuple",
+        "vector",
         "wai",
         "wai-app-static",
         "wai-extra",

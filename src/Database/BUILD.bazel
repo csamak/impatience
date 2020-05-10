@@ -13,5 +13,6 @@ haskell_library(
         "@stackage//:text",
         "@stackage//:time",
         "@stackage//:tuple",
+        "@stackage//:vector",
     ],
 )

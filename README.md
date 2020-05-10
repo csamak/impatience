@@ -19,13 +19,26 @@ For now subdirectories do not have their own `.devcontainer`.
 
 ### Basic commands:
 
-Assuming the working directory is the repo root:
+Assuming the working directory is the repo root (workspaces dir):
 
 ```shell
-# Everything set up OK?
-(cd site && spago bundle-app --to ../static/app.js) && stack test --fast
-# Run server tests during development
-stack test --fast --file-watch
+# Build project
+bazel build <target> 
+# i.e. bazel build //src:all
+
+# Build project and run repl (CTRL+D to exit repl in VS Code)
+bazel run <target>@repl 
+# i.e. bazel run //src:Server@repl
+
+# Test
+bazel test //test:all
+
 # Start the server and listen on port 1234
-stack exec impatience-exe
+bazel run //app:impatience-exe
+```
+
+Connecting to database:
+```
+psql -h db --user postgres
+\c impatience
 ```
