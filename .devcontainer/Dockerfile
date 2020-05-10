@@ -51,7 +51,7 @@ ENV PATH="/home/containeruser/.local/bin:/opt/ghc/bin:${PATH}"
 RUN curl -L https://nixos.org/nix/install | sh \
     && echo ". /home/containeruser/.nix-profile/etc/profile.d/nix.sh" >> /home/containeruser/.bashrc \
     # not sure why this is needed
-    && echo "PATH=/opt/ghc/bin:$PATH" >> /home/containeruser/.bashrc \
+    && echo "PATH=/opt/ghc/bin:$$PATH" >> /home/containeruser/.bashrc \
     # lower jobs after https://bazel.build/roadmaps/remote-execution.html#async-action-execution
     && echo "build -j 50 --remote_cache=$REMOTE_CACHE" >> /home/containeruser/.bazelrc
 ENV SHELL /bin/bash
