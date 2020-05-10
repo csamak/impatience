@@ -1,4 +1,4 @@
-FROM debian:10 AS hie
+FROM debian:10 AS hls
 ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
 COPY . /src
@@ -6,8 +6,8 @@ WORKDIR /src
 RUN set -x && apt-get update \
     && apt-get install -y curl libicu-dev libncurses-dev libgmp-dev \
     && curl -sSL https://get.haskellstack.org/ | sh \
-    && git clone https://github.com/haskell/haskell-ide-engine --recurse-submodules \
-    && cd haskell-ide-engine \
+    && git clone https://github.com/haskell/haskell-language-server --recurse-submodules \
+    && cd haskell-language-server \
     # && sed -i "s|lts-14.27 # last lts with GHC 8.6.5|nightly-2020-02-17 # GHC 8.8.2 |g" install/shake.yaml \
     && stack setup \
     && stack install hoogle \
@@ -15,15 +15,15 @@ RUN set -x && apt-get update \
     && stack clean --full \
     && rm -rf ~/.stack \
     && stack --resolver lts-14.27 setup \
-    && stack ./install.hs hie-8.6.5 \
+    && stack ./install.hs hls-8.6.5 \
     && stack ./install.hs data \
     # disable for disk space during build
     && stack clean --full \
     && rm -rf ~/.stack
 
 FROM debian:10
-COPY --from=hie /root/.local/bin /usr/bin
-COPY --from=hie /root/.hoogle /root/.hoogle
+COPY --from=hls /root/.local/bin /usr/bin
+COPY --from=hls /root/.hoogle /root/.hoogle
 ARG REMOTE_CACHE
 RUN set -x && apt-get update && apt-get install -y gnupg \
     && echo "deb http://downloads.haskell.org/debian buster main" | tee -a /etc/apt/sources.list \
@@ -50,6 +50,8 @@ ENV USER containeruser
 ENV PATH="/home/containeruser/.local/bin:/opt/ghc/bin:${PATH}"
 RUN curl -L https://nixos.org/nix/install | sh \
     && echo ". /home/containeruser/.nix-profile/etc/profile.d/nix.sh" >> /home/containeruser/.bashrc \
+    # not sure why this is needed
+    && echo "PATH=/opt/ghc/bin:$$PATH" >> /home/containeruser/.bashrc \
     # lower jobs after https://bazel.build/roadmaps/remote-execution.html#async-action-execution
     && echo "build -j 50 --remote_cache=$REMOTE_CACHE" >> /home/containeruser/.bazelrc
 ENV SHELL /bin/bash

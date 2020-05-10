@@ -6,6 +6,7 @@ stages:
   displayName: Build and Test
   jobs:
   - job: Build
+    timeoutInMinutes: 0
     pool:
       vmImage: 'ubuntu-18.04'
     steps:

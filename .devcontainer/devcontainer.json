@@ -4,6 +4,7 @@
     "dockerComposeFile": "docker-compose.yml",
     "service": "dev",
     "workspaceFolder": "/workspace",
+    "containerUser": "containeruser",
     "extensions": [
         "alanz.vscode-hie-server",
         "BazelBuild.vscode-bazel",
@@ -13,6 +14,10 @@
         "nwolverson.ide-purescript",
         "panaeon.vscode-dhall-lsp-server",
         "panaeon.dhall-lang",
-        "redhat.vscode-yaml"
-    ]
+        "redhat.vscode-yaml",
+        "vscodevim.vim"
+    ],
+    "settings": {
+        "languageServerHaskell.hieVariant": "haskell-language-server"
+    }
 }
