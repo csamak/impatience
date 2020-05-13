@@ -13,12 +13,13 @@ import qualified Hedgehog.Gen                  as Gen
 import qualified Hedgehog.Range                as Range
 import           Test.Tasty
 import           Test.Tasty.Hedgehog
-import           Test.Tasty.HUnit               ( (@?), testCase )
+import           Test.Tasty.HUnit               ( (@?)
+                                                , testCase
+                                                )
 
-main = defaultMain $ testGroup "Tests" [
-    testCase "Health check has video HTML" unit_annie
-  , testProperty "Progress JSON round trips" hprop_progressToFromJsonIsIdentity
-  ]
+main = defaultMain $ testGroup
+  "Tests"
+  [testProperty "Progress JSON round trips" hprop_progressToFromJsonIsIdentity]
 
 genProgress :: Gen Progress
 genProgress = Progress <$> integerGen <*> integerGen <*> integerGen <*> integerGen <*> dateGen
@@ -36,8 +37,3 @@ genProgress = Progress <$> integerGen <*> integerGen <*> integerGen <*> integerG
 hprop_progressToFromJsonIsIdentity = property $ do
   prog <- forAll genProgress
   tripping prog encode decode
-
-unit_annie = videoLink `isInfixOf` html @? html ++ " should remind us that others care about annie"
- where
-  html      = renderHtml annie
-  videoLink = "https://www.youtube.com/embed/h_D3VFfhvs4"
