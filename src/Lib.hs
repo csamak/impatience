@@ -88,7 +88,7 @@ type APIWithSwagger = "swagger.json" :> Get '[JSON] Swagger :<|> API
 
 startApp :: IO ()
 startApp = withStdoutLogger $ \logger -> do
-  let settings = setPort 1235 $ setLogger logger defaultSettings
+  let settings = setPort 1234 $ setLogger logger defaultSettings
   connString <- input auto "./impatience.dhall"
   -- use a connection pool
   connResult <- Connection.acquire $ encodeUtf8 connString
