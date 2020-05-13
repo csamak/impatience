@@ -1,8 +1,15 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE TypeOperators #-}
-module Api.Job where
+module Api.Job
+    ( JobAPI
+    , jobServer
+    )
+where
 
 import           Control.Monad.IO.Class         ( MonadIO(liftIO) )
+import           Data.Aeson                     ( FromJSON
+                                                , ToJSON
+                                                )
 import           Data.Either.Combinators        ( fromRight
                                                 , rightToMaybe
                                                 )
@@ -13,6 +20,9 @@ import           Hasql.Connection               ( Connection )
 import qualified Hasql.Session                 as Session
                                                 ( run )
 import           Servant
+
+instance ToJSON Job
+instance FromJSON Job
 
 -- brittany-disable-next-binding
 type JobAPI = Capture "id" Int32 :> Get '[ JSON] Job

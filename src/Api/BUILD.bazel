@@ -7,9 +7,13 @@ haskell_library(
     srcs = glob(["*.hs"]),
     deps = [
         "//src/Database",
+        "//src/Static",
+        "@stackage//:aeson",
         "@stackage//:base",
+        "@stackage//:blaze-html",
         "@stackage//:either",
         "@stackage//:hasql",
+        "@stackage//:servant-blaze",
         "@stackage//:servant-server",
     ],
 )
