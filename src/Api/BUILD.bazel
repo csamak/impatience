@@ -3,21 +3,17 @@ load("@rules_haskell//haskell:defs.bzl", "haskell_library")
 package(default_visibility = ["//visibility:public"])
 
 haskell_library(
-    name = "Server",
+    name = "Api",
     srcs = glob(["*.hs"]),
     deps = [
-        "//src/Api",
         "//src/Database",
+        "//src/Static",
+        "@stackage//:aeson",
         "@stackage//:base",
         "@stackage//:blaze-html",
-        "@stackage//:dhall",
+        "@stackage//:either",
         "@stackage//:hasql",
-        "@stackage//:lens",
+        "@stackage//:servant-blaze",
         "@stackage//:servant-server",
-        "@stackage//:servant-swagger",
-        "@stackage//:swagger2",
-        "@stackage//:text",
-        "@stackage//:wai-logger",
-        "@stackage//:warp",
     ],
 )
