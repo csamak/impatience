@@ -6,6 +6,7 @@ haskell_library(
     name = "Server",
     srcs = glob(["*.hs"]),
     deps = [
+        "//src/Api",
         "//src/Database",
         "//src/Static",
         "@stackage//:aeson",

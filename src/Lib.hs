@@ -7,6 +7,9 @@
 module Lib where
 
 
+import           Api.Job                        ( JobAPI
+                                                , jobServer
+                                                )
 import           Control.Monad.IO.Class         ( MonadIO(liftIO) )
 import           Data.Aeson                     ( FromJSON
                                                 , ToJSON
@@ -74,9 +77,7 @@ instance FromJSON Progress
 -- see https://github.com/lspitzner/brittany/issues/271
 -- brittany-disable-next-binding
 type API = "annieareyouok" :> Get '[ HTML] Html
-       :<|> "job" :> Capture "id" Int32 :> Get '[ JSON] Job
-       :<|> "job" :> ReqBody '[JSON] Job :> Post '[ JSON] Int32
-       :<|> "job" :> Capture "id" Int32 :> "progresses" :> Get '[ JSON] [Progress]
+       :<|> "job" :> JobAPI
        :<|> "progress" :> Capture "id" Int32 :> Get '[ JSON] Progress
        :<|> "progress" :> ReqBody '[JSON] Progress :> Post '[ JSON] Int32
        :<|> "static" :> Raw
@@ -87,7 +88,7 @@ type APIWithSwagger = "swagger.json" :> Get '[JSON] Swagger :<|> API
 
 startApp :: IO ()
 startApp = withStdoutLogger $ \logger -> do
-  let settings = setPort 1234 $ setLogger logger defaultSettings
+  let settings = setPort 1235 $ setLogger logger defaultSettings
   connString <- input auto "./impatience.dhall"
   -- use a connection pool
   connResult <- Connection.acquire $ encodeUtf8 connString
@@ -106,9 +107,7 @@ server :: Connection -> Server APIWithSwagger
 server conn =
   return swaggerDoc
     :<|> pure annie
-    :<|> job conn
-    :<|> newJob conn
-    :<|> jobProgresses conn
+    :<|> jobServer conn
     :<|> progress conn
     :<|> newProgress conn
     :<|> serveDirectoryWith jsSettings
@@ -127,21 +126,6 @@ home = html $ do
   H.head $ H.title "Sailor Greetings"
   body "Hello Sailor! (not dynamic)"
   script ! type_ "text/javascript" ! src "static/impatience.js" $ mempty
-
-job :: Connection -> Int32 -> Handler Job
-job conn i = do
-  found <- liftIO $ Session.run (jobById i) conn
-  maybe (throwError err404) pure $ fromRight Nothing found
-
-newJob :: Connection -> Job -> Handler Int32
-newJob conn j = do
-  newId <- liftIO $ Session.run (insertJob j) conn
-  maybe (throwError err404) pure $ rightToMaybe newId
-
-jobProgresses :: Connection -> Int32 -> Handler [Progress]
-jobProgresses conn id = do 
-  found <- liftIO $ Session.run (progressesByJob id) conn
-  maybe (throwError err404) pure $ rightToMaybe found
 
 progress :: Connection -> Int32 -> Handler Progress
 progress conn i = do
