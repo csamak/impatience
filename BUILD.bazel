@@ -60,6 +60,7 @@ container_image(
 haskell_repl(
     name = "hie-bios",
     testonly = 1,  # need to get test deps too
+    collect_data = False,
     deps = [
         "//app:impatience-exe",
         "//test:impatience_server_test",

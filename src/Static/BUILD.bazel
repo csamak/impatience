@@ -12,6 +12,7 @@ haskell_library(
         "@stackage//:base",
         "@stackage//:bytestring",
         "@stackage//:cryptonite",
+        "@stackage//:mime-types",
         "@stackage//:template-haskell",
         "@stackage//:text",
         "@stackage//:wai-app-static",

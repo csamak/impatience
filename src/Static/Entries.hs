@@ -14,15 +14,19 @@ import           Crypto.Hash                    ( Digest
                                                 )
 import qualified Data.ByteString.Lazy          as BL
                                                 ( readFile )
-import           Data.Text                      ( pack )
+import           Data.Text                      ( Text
+                                                , pack
+                                                )
 import           Language.Haskell.TH.Lib        ( ExpQ )
 import           Language.Haskell.TH.Syntax     ( qAddDependentFile )
+import           Network.Mime                   ( MimeType )
 
 settings :: [(FilePath, IO EmbeddableEntry)] -> ExpQ
 settings entries = do
   mapM_ (qAddDependentFile . fst) entries
   mkSettings (mapM snd entries) -- also consider servant-static-th as an alternative
 
+entry :: String -> Text -> MimeType -> (String, IO EmbeddableEntry)
 entry path location mime =
   ( path
   , do
@@ -36,4 +40,8 @@ entry path location mime =
 
 -- TODO: don't hardcode this path. See https://github.com/tweag/rules_haskell/issues/1296
 jsEntries :: [(FilePath, IO EmbeddableEntry)]
-jsEntries = [entry "bazel-out/k8-fastbuild/bin/site/impatience-bundle.js" "impatience.js" "application/javascript"]
+jsEntries =
+  [ entry "bazel-out/k8-fastbuild/bin/site/impatience-bundle.js"
+          "impatience.js"
+          "application/javascript"
+  ]

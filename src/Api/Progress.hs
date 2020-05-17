@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeOperators #-}
 module Api.Progress
     ( ProgressAPI
@@ -6,38 +7,30 @@ module Api.Progress
     )
 where
 
-import           Control.Monad.IO.Class         ( MonadIO(liftIO) )
+import           Api.Types
+import           Control.Monad.Error.Class      ( MonadError )
 import           Data.Either.Combinators        ( fromRight
                                                 , rightToMaybe
-                                                )
-import           Data.Aeson                     ( FromJSON
-                                                , ToJSON
                                                 )
 import           Data.Int                       ( Int32 )
 import           Database.Types
 import           Database.Session
-import           Hasql.Connection               ( Connection )
-import qualified Hasql.Session                 as Session
-                                                ( run )
 import           Servant
-
-instance ToJSON Progress
-instance FromJSON Progress
 
 -- brittany-disable-next-binding
 type ProgressAPI = Capture "id" Int32 :> Get '[ JSON] Progress
                    :<|> ReqBody '[JSON] Progress :> Post '[ JSON] Int32
 
-progressServer :: Connection -> Server ProgressAPI
-progressServer conn = progress conn :<|> newProgress conn
+progressServer :: (MonadDB m, MonadError ServerError m) => ServerT ProgressAPI m
+progressServer = progress :<|> newProgress
 
-progress :: Connection -> Int32 -> Handler Progress
-progress conn i = do
-    found <- liftIO $ Session.run (progressById i) conn
+progress :: (MonadDB m, MonadError ServerError m) => Int32 -> m Progress
+progress i = do
+    found <- runSession (progressById i)
     -- handle query errors correctly
     maybe (throwError err404) pure $ fromRight Nothing found
 
-newProgress :: Connection -> Progress -> Handler Int32
-newProgress conn p = do
-    newId <- liftIO $ Session.run (insertProgress p) conn
+newProgress :: (MonadDB m, MonadError ServerError m) => Progress -> m Int32
+newProgress p = do
+    newId <- runSession (insertProgress p)
     maybe (throwError err404) pure $ rightToMaybe newId

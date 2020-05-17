@@ -6,6 +6,7 @@ haskell_library(
     name = "Database",
     srcs = glob(["*.hs"]),
     deps = [
+        "@stackage//:aeson",
         "@stackage//:base",
         "@stackage//:hasql",
         "@stackage//:hasql-th",
