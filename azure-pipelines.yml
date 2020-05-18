@@ -15,11 +15,11 @@ stages:
       displayName: Install Nix
     - script: |
         source ~/.nix-profile/etc/profile.d/nix.sh
-        bazel build -c opt $(remoteCacheFlags) //app:impatience-exe
+        bazel build $(remoteCacheFlags) //app:impatience-exe
       displayName: Build server binary
     - script: |
         source ~/.nix-profile/etc/profile.d/nix.sh
-        bazel build -c opt $(remoteCacheFlags) //:impatience.tar
+        bazel build $(remoteCacheFlags) //:impatience.tar
       displayName: Build container
     - publish: bazel-bin/app/impatience-exe
       artifact: exe
