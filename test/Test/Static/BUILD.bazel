@@ -1,5 +1,10 @@
 load("@rules_haskell//haskell:defs.bzl", "haskell_test")
 
+package(
+    default_testonly = 1,
+    default_visibility = ["//visibility:public"],
+)
+
 haskell_test(
     name = "Static",
     srcs = glob(["*.hs"]),

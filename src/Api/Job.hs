@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeOperators #-}
 module Api.Job
     ( JobAPI
@@ -6,43 +7,35 @@ module Api.Job
     )
 where
 
-import           Control.Monad.IO.Class         ( MonadIO(liftIO) )
-import           Data.Aeson                     ( FromJSON
-                                                , ToJSON
-                                                )
+import           Api.Types
+import           Control.Monad.Error.Class      ( MonadError )
 import           Data.Either.Combinators        ( fromRight
                                                 , rightToMaybe
                                                 )
 import           Data.Int                       ( Int32 )
 import           Database.Types
 import           Database.Session
-import           Hasql.Connection               ( Connection )
-import qualified Hasql.Session                 as Session
-                                                ( run )
 import           Servant
-
-instance ToJSON Job
-instance FromJSON Job
 
 -- brittany-disable-next-binding
 type JobAPI = Capture "id" Int32 :> Get '[ JSON] Job
               :<|> ReqBody '[JSON] Job :> Post '[ JSON] Int32
               :<|> Capture "id" Int32 :> "progresses" :> Get '[ JSON] [Progress]
 
-jobServer :: Connection -> Server JobAPI
-jobServer conn = job conn :<|> newJob conn :<|> jobProgresses conn
+jobServer :: (MonadDB m, MonadError ServerError m) => ServerT JobAPI m
+jobServer = job :<|> newJob :<|> jobProgresses
 
-job :: Connection -> Int32 -> Handler Job
-job conn i = do
-    found <- liftIO $ Session.run (jobById i) conn
+job :: (MonadDB m, MonadError ServerError m) => Int32 -> m Job
+job i = do
+    found <- runSession (jobById i)
     maybe (throwError err404) pure $ fromRight Nothing found
 
-newJob :: Connection -> Job -> Handler Int32
-newJob conn j = do
-    newId <- liftIO $ Session.run (insertJob j) conn
+newJob :: (MonadDB m, MonadError ServerError m) => Job -> m Int32
+newJob j = do
+    newId <- runSession (insertJob j)
     maybe (throwError err404) pure $ rightToMaybe newId
 
-jobProgresses :: Connection -> Int32 -> Handler [Progress]
-jobProgresses conn id = do
-    found <- liftIO $ Session.run (progressesByJob id) conn
+jobProgresses :: (MonadDB m, MonadError ServerError m) => Int32 -> m [Progress]
+jobProgresses i = do
+    found <- runSession (progressesByJob i)
     maybe (throwError err404) pure $ rightToMaybe found

@@ -13,7 +13,10 @@ haskell_library(
         "@stackage//:blaze-html",
         "@stackage//:either",
         "@stackage//:hasql",
+        "@stackage//:hasql-pool",
+        "@stackage//:mtl",
         "@stackage//:servant-blaze",
         "@stackage//:servant-server",
+        "@stackage//:transformers",
     ],
 )

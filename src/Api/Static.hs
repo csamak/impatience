@@ -33,7 +33,7 @@ type StaticAPI =  "annieareyouok" :> Get '[ HTML] Html
                   :<|> "index.html" :> Get '[ HTML] Html
                   :<|> Get '[ HTML] Html
 
-staticServer :: Server StaticAPI
+staticServer :: Applicative m => ServerT StaticAPI m
 staticServer = pure annie :<|> serveDirectoryWith jsSettings :<|> pure home :<|> pure home
 
 annie :: Html

@@ -70,7 +70,17 @@ rules_haskell_dependencies()
 
 load("@rules_haskell//haskell:toolchain.bzl", "rules_haskell_toolchains")
 
-rules_haskell_toolchains(version = "8.6.5")
+rules_haskell_toolchains(
+    compiler_flags = [
+        "-Wall",
+        "-Werror",
+        "-Wcompat",
+        "-Wincomplete-record-updates",
+        "-Wincomplete-uni-patterns",
+        "-Wredundant-constraints",
+    ],
+    version = "8.6.5",
+)
 
 load("@rules_haskell//tools:repositories.bzl", "rules_haskell_worker_dependencies")
 
@@ -116,10 +126,13 @@ stack_snapshot(
         "either",
         "generic-random",
         "hasql",
+        "hasql-pool",
         "hasql-th",
         "hedgehog",
         "language-javascript",
         "lens",
+        "mime-types",
+        "mtl",
         "profunctors",
         "servant-blaze",
         "servant-server",
